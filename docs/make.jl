@@ -20,4 +20,5 @@ makedocs(;
 
 deploydocs(;
     repo="github.com/brenhinkeller/VectorizedStatistics.jl",
+    devbranch = "main",
 )
