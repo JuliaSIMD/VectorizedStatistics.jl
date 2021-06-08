@@ -12,7 +12,7 @@ for (op, name) in zip((:min, :max, :+), (:_vminimum, :_vmaximum, :_vsum))
             # For tuple with single element, simply unwrap
             $name(A, region[1])
         elseif length(region) == 2
-            # For tuple with two elements, two evals suffice
+            # For tuple with two elements, two evaluations suffice
             $name($name(A, region[1]), region[2])
         else
             # Otherwise recurse
