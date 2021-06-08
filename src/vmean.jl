@@ -129,7 +129,7 @@ end
 
 # Efficient @generated in-place mean
 @generated function _vmean!(B::AbstractArray{Tₒ,N}, A::AbstractArray{T,N}, dims::D) where {Tₒ,T,N,M,D<:Tuple{Vararg{Integer,M}}}
-  N == M && return :(B[1] = _vmean(A, :))
+  N == M && return :(B[1] = _vmean(A, :); B)
   total_combinations = binomial(N,M)
   if total_combinations > 10
     # Fallback, for extremely high-dimensional arrays
