@@ -18,7 +18,7 @@
         # Test equivalence when reducing over two dimensions
         if nd > 1
             for i = 2:nd
-                for j = 1:i
+                for j = 1:i-1
                     dims = (j,i)
                     @info "Testing vmean: reduction over dimensions $dims"
                     @test vmean(A, dims=dims) ≈ mean(A, dims=dims)
