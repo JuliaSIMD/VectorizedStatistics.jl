@@ -1,6 +1,5 @@
-using VectorizedStatistics
 using Test
+using Statistics
+using VectorizedStatistics
 
-@testset "VectorizedStatistics.jl" begin
-    # Write your tests here.
-end
+@testset "ArrayStats" begin include("testArrayStats.jl") end
