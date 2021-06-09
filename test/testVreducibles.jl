@@ -19,9 +19,8 @@
         if nd > 1
             for i = 2:nd
                 for j = 1:i-1
-                    dims = (j,i)
-                    @info "Testing vminimum: reduction over dimensions $dims"
-                    @test vminimum(A, dims=dims) ≈ minimum(A, dims=dims)
+                    @info "Testing vminimum: reduction over dimensions $((j,i))"
+                    @test vminimum(A, dims=(j,i)) ≈ minimum(A, dims=(j,i))
                 end
             end
         end
@@ -46,9 +45,8 @@
         if nd > 1
             for i = 2:nd
                 for j = 1:i-1
-                    dims = (j,i)
-                    @info "Testing vmaximum: reduction over dimensions $dims"
-                    @test vmaximum(A, dims=dims) ≈ maximum(A, dims=dims)
+                    @info "Testing vmaximum: reduction over dimensions $((j,i))"
+                    @test vmaximum(A, dims=(j,i)) ≈ maximum(A, dims=(j,i))
                 end
             end
         end
@@ -73,9 +71,8 @@
         if nd > 1
             for i = 2:nd
                 for j = 1:i-1
-                    dims = (j,i)
-                    @info "Testing vsum: reduction over dimensions $dims"
-                    @test vsum(A, dims=dims) ≈ sum(A, dims=dims)
+                    @info "Testing vsum: reduction over dimensions $((j,i))"
+                    @test vsum(A, dims=(j,i)) ≈ sum(A, dims=(j,i))
                 end
             end
         end
