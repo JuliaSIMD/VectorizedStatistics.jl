@@ -1,9 +1,11 @@
 """
 ```julia
-vvar(A; dims)
+vvar(A; dims=:, mean=nothing, corrected=true)
 ```
 As `Statistics.var`, but vectorized: compute the variance of all elements in `A`,
-optionally over dimensions specified by `dims`.
+optionally over dimensions specified by `dims`. A precomputed `mean` may optionally
+be provided, which results in a somewhat faster calculation. If `corrected` is `true`,
+then _Bessel's correction_ is applied.
 
 ## Examples
 ```julia
@@ -16,15 +18,15 @@ julia> A = [1 2; 3 4]
 
 julia> vvar(A, dims=1)
 1×2 Matrix{Float64}:
- 2.0  3.0
+ 2.0  2.0
 
 julia> vvar(A, dims=2)
 2×1 Matrix{Float64}:
- 1.5
- 3.5
+ 0.5
+ 0.5
 ```
 """
-vvar(A; dims=:, var=nothing, corrected=true) = _vvar(var, corrected, A, dims)
+vvar(A; dims=:, mean=nothing, corrected=true) = _vvar(mean, corrected, A, dims)
 export vvar
 
 # If dims is an integer, wrap it in a tuple
@@ -63,6 +65,16 @@ function _vvar(μ::Number, corrected::Bool, A, ::Colon)
   return σ² / (n-corrected)
 end
 
+# Recursive fallback method for overly-complex reductions
+function _vstd_recursive!(B::AbstractArray, corrected::Bool, A::AbstractArray, dims)
+  n = length(A)/length(B) - corrected
+  invn = inv(n)
+  δ = A .- B
+  δ .*= δ
+  B = _vsum(δ, dims)
+  B .*= invn
+  return B
+end
 
 # Chris Elrod metaprogramming magic:
 # Generate customized set of loops for a given ndims and a vector
@@ -170,8 +182,8 @@ end
   N == M && return :(B[1] = _vvar(B[1], corrected, A, :); B)
   total_combinations = binomial(N,M)
   if total_combinations > 10
-    # Fallback, for extremely high-dimensional arrays
-    return :(var(A, mean=B, dims=dims, corrected=corrected))
+    # Fallback, for overly-complex reductions
+    return :(_vstd_recursive!(B, corrected, A, dims))
   else
     branches_var_quote(N, M, D)
   end

@@ -1,3 +1,46 @@
+"""
+```julia
+vmean(A; dims)
+```
+As `Statistics.mean`, but vectorized: compute the mean of all elements in `A`,
+optionally over dimensions specified by `dims`.
+
+## Examples
+```julia
+julia> using VectorizedStatistics
+
+julia> A = [1 2; 3 4]
+2×2 Matrix{Int64}:
+ 1  2
+ 3  4
+
+julia> vmean(A, dims=1)
+1×2 Matrix{Float64}:
+ 2.0  3.0
+
+julia> vmean(A, dims=2)
+2×1 Matrix{Float64}:
+ 1.5
+ 3.5
+```
+"""
+vmean(A; dims=:) = _vmean(A, dims)
+export vmean
+
+# Reduce one dim
+_vmean(A, dims::Int) = _vmean(A, (dims,))
+
+# Reduce some dims
+function _vmean(A::AbstractArray{T,N}, dims::Tuple) where {T,N}
+  sᵢ = size(A)
+  sₒ = ntuple(Val(N)) do d
+    ifelse(d ∈ dims, 1, sᵢ[d])
+  end
+  Tₒ = Base.promote_op(/, T, Int)
+  B = similar(A, Tₒ, sₒ)
+  _vmean!(B, A, dims)
+end
+
 # Reduce all the dims!
 function _vmean(A, ::Colon)
   Σ = zero(eltype(A))
@@ -7,24 +50,11 @@ function _vmean(A, ::Colon)
   return Σ / length(A)
 end
 
-# Reduce over some specific indices
-function _vmean(A, I::CartesianIndices)
-    Σ = zero(eltype(A))
-    @avx for i ∈ I
-        Σ += A[i]
-    end
-    return Σ / length(I)
-end
-
-# Fallback cartesian in-place mean
-function _vmean_cartesian!(B::AbstractArray{Tₒ,N}, A::AbstractArray, dims) where {Tₒ,N}
-  axᵢ = axes(A)
-  @inbounds for I ∈ CartesianIndices(B)
-    axᵣ = ntuple(Val(N)) do d
-      ifelse(d ∈ dims, axᵢ[d], I[d])
-    end
-    B[I] = _vmean(A, CartesianIndices(axᵣ))
-  end
+# Recursive fallback method for overly-complex reductions
+function _vmean_recursive!(B::AbstractArray, A::AbstractArray, dims)
+  invn = length(B)/length(A)
+  B = _vsum(A, dims)
+  B .*= invn
   return B
 end
 
@@ -132,52 +162,9 @@ end
   N == M && return :(B[1] = _vmean(A, :); B)
   total_combinations = binomial(N,M)
   if total_combinations > 10
-    # Fallback, for extremely high-dimensional arrays
-    return :(_vmean_cartesian!(B, A, dims))
+    # Fallback, for overly-complex reductions
+    return :(_vmean_recursive!(B, A, dims))
   else
     branches_mean_quote(N, M, D)
   end
 end
-
-# Reduce some dims
-function _vmean(A::AbstractArray{T,N}, dims::Tuple) where {T,N}
-  sᵢ = size(A)
-  sₒ = ntuple(Val(N)) do d
-    ifelse(d ∈ dims, 1, sᵢ[d])
-  end
-  Tₒ = Base.promote_op(/, T, Int)
-  B = similar(A, Tₒ, sₒ)
-  _vmean!(B, A, dims)
-end
-
-# Reduce one dim
-_vmean(A, dims::Int) = _vmean(A, (dims,))
-
-"""
-```julia
-vmean(A; dims)
-```
-As `Statistics.mean`, but vectorized: compute the mean of all elements in `A`,
-optionally over dimensions specified by `dims`.
-
-## Examples
-```julia
-julia> using VectorizedStatistics
-
-julia> A = [1 2; 3 4]
-2×2 Matrix{Int64}:
- 1  2
- 3  4
-
-julia> vmean(A, dims=1)
-1×2 Matrix{Float64}:
- 2.0  3.0
-
-julia> vmean(A, dims=2)
-2×1 Matrix{Float64}:
- 1.5
- 3.5
-```
-"""
-vmean(A; dims=:) = _vmean(A, dims)
-export vmean
