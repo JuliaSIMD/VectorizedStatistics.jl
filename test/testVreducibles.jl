@@ -24,6 +24,18 @@
                 end
             end
         end
+
+        # Test equivalence when reducing over three dimensions
+        if nd > 2
+            for i = 3:nd
+                for j = 2:i-1
+                    for k = 1:j-1
+                        @info "Testing vminimum: reduction over dimensions $((k,j,i))"
+                        @test vminimum(A, dims=(k,j,i)) ≈ minimum(A, dims=(k,j,i))
+                    end
+                end
+            end
+        end
     end
 
     # Test vmaximum
@@ -50,6 +62,18 @@
                 end
             end
         end
+
+        # Test equivalence when reducing over three dimensions
+        if nd > 2
+            for i = 3:nd
+                for j = 2:i-1
+                    for k = 1:j-1
+                        @info "Testing vmaximum: reduction over dimensions $((k,j,i))"
+                        @test vmaximum(A, dims=(k,j,i)) ≈ maximum(A, dims=(k,j,i))
+                    end
+                end
+            end
+        end
     end
 
     # Test vsum
@@ -73,6 +97,18 @@
                 for j = 1:i-1
                     @info "Testing vsum: reduction over dimensions $((j,i))"
                     @test vsum(A, dims=(j,i)) ≈ sum(A, dims=(j,i))
+                end
+            end
+        end
+
+        # Test equivalence when reducing over three dimensions
+        if nd > 2
+            for i = 3:nd
+                for j = 2:i-1
+                    for k = 1:j-1
+                        @info "Testing vsum: reduction over dimensions $((k,j,i))"
+                        @test vsum(A, dims=(k,j,i)) ≈ sum(A, dims=(k,j,i))
+                    end
                 end
             end
         end

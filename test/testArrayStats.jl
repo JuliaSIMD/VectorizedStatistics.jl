@@ -26,6 +26,17 @@
             end
         end
 
+        # Test equivalence when reducing over three dimensions
+        if nd > 2
+            for i = 3:nd
+                for j = 2:i-1
+                    for k = 1:j-1
+                        @info "Testing vmean: reduction over dimensions $((k,j,i))"
+                        @test vmean(A, dims=(k,j,i)) ≈ mean(A, dims=(k,j,i))
+                    end
+                end
+            end
+        end
     end
 
 
@@ -54,6 +65,18 @@
                 end
             end
         end
+
+        # Test equivalence when reducing over three dimensions
+        if nd > 2
+            for i = 3:nd
+                for j = 2:i-1
+                    for k = 1:j-1
+                        @info "Testing vvar: reduction over dimensions $((k,j,i))"
+                        @test vvar(A, dims=(k,j,i)) ≈ var(A, dims=(k,j,i))
+                    end
+                end
+            end
+        end
     end
 
 
@@ -78,6 +101,18 @@
                 for j = 1:i-1
                     @info "Testing vstd: reduction over dimensions $((j,i))"
                     @test vstd(A, dims=(j,i)) ≈ std(A, dims=(j,i))
+                end
+            end
+        end
+
+        # Test equivalence when reducing over three dimensions
+        if nd > 2
+            for i = 3:nd
+                for j = 2:i-1
+                    for k = 1:j-1
+                        @info "Testing vstd: reduction over dimensions $((k,j,i))"
+                        @test vstd(A, dims=(k,j,i)) ≈ std(A, dims=(k,j,i))
+                    end
                 end
             end
         end
