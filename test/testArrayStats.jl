@@ -19,7 +19,7 @@
         if nd > 1
             for i = 2:nd
                 for j = 1:i-1
-                    @info "Testing vmean: reduction over dimensions $(dims)"
+                    @info "Testing vmean: reduction over dimensions $((j,i))"
                     @test vmean(A, dims=(j,i)) ≈ mean(A, dims=(j,i))
                 end
             end
