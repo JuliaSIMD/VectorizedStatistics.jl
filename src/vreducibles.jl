@@ -42,7 +42,7 @@ julia> vminimum(A, dims=1)
 1×2 Matrix{Int64}:
  1  2
 
-julia>  vminimum(A, dims=2)
+julia> vminimum(A, dims=2)
  2×1 Matrix{Int64}:
  1
  3

@@ -15,3 +15,4 @@ Fast, [LoopVectorization.jl](https://github.com/JuliaSIMD/LoopVectorization.jl)-
 #### Implemented directly by compile-time loop generation
 * `vmean`
 * `vvar`
+* `vstd`

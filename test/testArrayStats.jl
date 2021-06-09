@@ -57,31 +57,30 @@
     end
 
 
-    # # Test vstd
-    # for nd = 1:5
-    #     @info "Testing vstd: $nd-dimensional arrays"
-    #     # Generate random array
-    #     A = randn((10 .+ (1:nd))...)
-    #
-    #     # Test equivlalence when reducing over all dims
-    #     @test vstd(A) ≈ std(A)
-    #
-    #     # Test equivalence when reducing over a single dimension
-    #     for i = 1:nd
-    #         @info "Testing vstd: reduction over dimension $i"
-    #         @test vstd(A, dims=i) ≈ std(A, dims=i)
-    #     end
-    #
-    #     # Test equivalence when reducing over two dimensions
-    #     if nd > 1
-    #         for i = 2:nd
-    #             for j = 1:i-1
-    #                 dims = (j,i)
-    #                 @info "Testing vstd: reduction over dimensions $dims"
-    #                 @test vstd(A, dims=dims) ≈ std(A, dims=dims)
-    #             end
-    #         end
-    #     end
-    # end
+    # Test vstd
+    for nd = 1:5
+        @info "Testing vstd: $nd-dimensional arrays"
+        # Generate random array
+        A = randn((10 .+ (1:nd))...)
+
+        # Test equivlalence when reducing over all dims
+        @test vstd(A) ≈ std(A)
+
+        # Test equivalence when reducing over a single dimension
+        for i = 1:nd
+            @info "Testing vstd: reduction over dimension $i"
+            @test vstd(A, dims=i) ≈ std(A, dims=i)
+        end
+
+        # Test equivalence when reducing over two dimensions
+        if nd > 1
+            for i = 2:nd
+                for j = 1:i-1
+                    @info "Testing vstd: reduction over dimensions $((j,i))"
+                    @test vstd(A, dims=(j,i)) ≈ std(A, dims=(j,i))
+                end
+            end
+        end
+    end
 
 ## -- End of File
