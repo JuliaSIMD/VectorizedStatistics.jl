@@ -4,7 +4,7 @@
     for nd = 1:5
         @info "Testing vmean: $nd-dimensional arrays"
         # Generate random array
-        A = rand((10 .+ (1:nd))...)
+        A = rand((1 .+ (1:nd))...)
 
         # Test equivlalence when reducing over all dims
         @test vmean(A) ≈ mean(A)

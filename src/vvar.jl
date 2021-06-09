@@ -66,7 +66,7 @@ function _vvar(μ::Number, corrected::Bool, A, ::Colon)
 end
 
 # Recursive fallback method for overly-complex reductions
-function _vstd_recursive!(B::AbstractArray, corrected::Bool, A::AbstractArray, dims)
+function _vvar_recursive!(B::AbstractArray, corrected::Bool, A::AbstractArray, dims)
     n = length(A)/length(B) - corrected
     invn = inv(n)
     δ = A .- B
@@ -183,7 +183,7 @@ end
   total_combinations = binomial(N,M)
   if total_combinations > 10
     # Fallback, for overly-complex reductions
-    return :(_vstd_recursive!(B, corrected, A, dims))
+    return :(_vvar_recursive!(B, corrected, A, dims))
   else
     branches_var_quote(N, M, D)
   end

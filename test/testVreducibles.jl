@@ -4,7 +4,7 @@
     for nd = 1:5
         @info "Testing vminimum: $nd-dimensional arrays"
         # Generate random array
-        A = rand((10 .+ (1:nd))...)
+        A = rand((1 .+ (1:nd))...)
 
         # Test equivlalence when reducing over all dims
         @test vminimum(A) ≈ minimum(A)
@@ -42,7 +42,7 @@
     for nd = 1:5
         @info "Testing vmaximum: $nd-dimensional arrays"
         # Generate random array
-        A = rand((10 .+ (1:nd))...)
+        A = rand((1 .+ (1:nd))...)
 
         # Test equivlalence when reducing over all dims
         @test vmaximum(A) ≈ maximum(A)
@@ -80,7 +80,7 @@
     for nd = 1:5
         @info "Testing vsum: $nd-dimensional arrays"
         # Generate random array
-        A = rand((10 .+ (1:nd))...)
+        A = rand((1 .+ (1:nd))...)
 
         # Test equivlalence when reducing over all dims
         @test vsum(A) ≈ sum(A)
