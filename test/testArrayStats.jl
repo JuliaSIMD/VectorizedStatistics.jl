@@ -19,9 +19,8 @@
         if nd > 1
             for i = 2:nd
                 for j = 1:i-1
-                    dims = (j,i)
-                    @info "Testing vmean: reduction over dimensions $dims"
-                    @test vmean(A, dims=dims) ≈ mean(A, dims=dims)
+                    @info "Testing vmean: reduction over dimensions $(dims)"
+                    @test vmean(A, dims=(j,i)) ≈ mean(A, dims=(j,i))
                 end
             end
         end
@@ -59,9 +58,8 @@
         if nd > 1
             for i = 2:nd
                 for j = 1:i-1
-                    dims = (j,i)
-                    @info "Testing vvar: reduction over dimensions $dims"
-                    @test vvar(A, dims=dims, corrected=false) ≈ var(A, dims=dims, corrected=false);
+                    @info "Testing vvar: reduction over dimensions $((j,i))"
+                    @test vvar(A, dims=(j,i), corrected=false) ≈ var(A, dims=(j,i), corrected=false);
                 end
             end
         end
