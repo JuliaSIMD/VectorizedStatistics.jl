@@ -32,30 +32,30 @@ _vmean(A, dims::Int) = _vmean(A, (dims,))
 
 # Reduce some dims
 function _vmean(A::AbstractArray{T,N}, dims::Tuple) where {T,N}
-  sᵢ = size(A)
-  sₒ = ntuple(Val(N)) do d
-    ifelse(d ∈ dims, 1, sᵢ[d])
-  end
-  Tₒ = Base.promote_op(/, T, Int)
-  B = similar(A, Tₒ, sₒ)
-  _vmean!(B, A, dims)
+    sᵢ = size(A)
+    sₒ = ntuple(Val(N)) do d
+        ifelse(d ∈ dims, 1, sᵢ[d])
+    end
+    Tₒ = Base.promote_op(/, T, Int)
+    B = similar(A, Tₒ, sₒ)
+    _vmean!(B, A, dims)
 end
 
 # Reduce all the dims!
 function _vmean(A, ::Colon)
-  Σ = zero(eltype(A))
-  @avx for i ∈ eachindex(A)
-    Σ += A[i]
-  end
-  return Σ / length(A)
+    Σ = zero(eltype(A))
+    @avx for i ∈ eachindex(A)
+        Σ += A[i]
+    end
+    return Σ / length(A)
 end
 
 # Recursive fallback method for overly-complex reductions
 function _vmean_recursive!(B::AbstractArray, A::AbstractArray, dims)
-  invn = length(B)/length(A)
-  B = _vsum(A, dims)
-  B .*= invn
-  return B
+    invn = length(B)/length(A)
+    B = _vsum(A, dims)
+    B .*= invn
+    return B
 end
 
 # Chris Elrod metaprogramming magic:

@@ -35,19 +35,19 @@ _vvar(μ, corrected::Bool, A, dims::Int) = _vvar(μ, corrected, A, (dims,))
 # If the mean isn't known, compute it
 _vvar(::Nothing, corrected::Bool, A, dims::Tuple) = _vvar!(_vmean(A, dims), corrected, A, dims)
 function _vvar(::Nothing, corrected::Bool, A, ::Colon)
-  # Reduce all the dims!
-  n = length(A)
-  Σ = zero(eltype(A))
-  @avx for i ∈ eachindex(A)
-      Σ += A[i]
-  end
-  μ = Σ / n
-  σ² = zero(typeof(μ))
-  @avx for i ∈ eachindex(A)
-      δ = A[i] - μ
-      σ² += δ * δ
-  end
-  return σ² / (n-corrected)
+    # Reduce all the dims!
+    n = length(A)
+    Σ = zero(eltype(A))
+    @avx for i ∈ eachindex(A)
+            Σ += A[i]
+    end
+    μ = Σ / n
+    σ² = zero(typeof(μ))
+    @avx for i ∈ eachindex(A)
+            δ = A[i] - μ
+            σ² += δ * δ
+    end
+    return σ² / (n-corrected)
 end
 
 # If the mean is known, pass it on in the appropriate form
@@ -55,25 +55,25 @@ _vvar(μ, corrected::Bool, A, dims::Tuple) = _vvar!(collect(μ), corrected, A, d
 _vvar(μ::Array, corrected::Bool, A, dims::Tuple) = _vvar!(copy(μ), corrected, A, dims)
 _vvar(μ::Number, corrected::Bool, A, dims::Tuple) = _vvar!([μ], corrected, A, dims)
 function _vvar(μ::Number, corrected::Bool, A, ::Colon)
-  # Reduce all the dims!
-  n = length(A)
-  σ² = zero(typeof(μ))
-  @avx for i ∈ eachindex(A)
-    δ = A[i] - μ
-    σ² += δ * δ
-  end
-  return σ² / (n-corrected)
+    # Reduce all the dims!
+    n = length(A)
+    σ² = zero(typeof(μ))
+    @avx for i ∈ eachindex(A)
+        δ = A[i] - μ
+        σ² += δ * δ
+    end
+    return σ² / (n-corrected)
 end
 
 # Recursive fallback method for overly-complex reductions
 function _vstd_recursive!(B::AbstractArray, corrected::Bool, A::AbstractArray, dims)
-  n = length(A)/length(B) - corrected
-  invn = inv(n)
-  δ = A .- B
-  δ .*= δ
-  B = _vsum(δ, dims)
-  B .*= invn
-  return B
+    n = length(A)/length(B) - corrected
+    invn = inv(n)
+    δ = A .- B
+    δ .*= δ
+    B = _vsum(δ, dims)
+    B .*= invn
+    return B
 end
 
 # Chris Elrod metaprogramming magic:

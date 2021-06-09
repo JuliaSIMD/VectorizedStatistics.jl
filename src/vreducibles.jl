@@ -1,24 +1,24 @@
 
 for (op, name) in zip((:min, :max, :+), (:_vminimum, :_vmaximum, :_vsum))
-    # Reduce over all dimensions
-    @eval $name(A, ::Colon) = vreduce($op, A)
+  # Reduce over all dimensions
+  @eval $name(A, ::Colon) = vreduce($op, A)
 
-    # Reduce over a single dimension
-    @eval $name(A, region::Int) = vreduce($op, A, dims=region)
+  # Reduce over a single dimension
+  @eval $name(A, region::Int) = vreduce($op, A, dims=region)
 
-    # General case: recursive
-    @eval function $name(A::AbstractArray, region::Tuple)
-        if length(region) == 1
-            # For tuple with single element, simply unwrap
-            $name(A, region[1])
-        elseif length(region) == 2
-            # For tuple with two elements, two evaluations suffice
-            $name($name(A, region[1]), region[2])
-        else
-            # Otherwise recurse
-            $name($name(A, region[1]), region[2:end])
-        end
+  # General case: recursive
+  @eval function $name(A::AbstractArray, region::Tuple)
+    if length(region) == 1
+      # For tuple with single element, simply unwrap
+      $name(A, region[1])
+    elseif length(region) == 2
+      # For tuple with two elements, two evaluations suffice
+      $name($name(A, region[1]), region[2])
+    else
+      # Otherwise recurse
+      $name($name(A, region[1]), region[2:end])
     end
+  end
 end
 
 
