@@ -1,6 +1,4 @@
-using Test
-using Statistics
-using VectorizedStatistics
+using SafeTestSets
 
-@testset "Vreducibles" begin include("testVreducibles.jl") end
-@testset "ArrayStats" begin include("testArrayStats.jl") end
+@safetestset "Vreducibles" begin include("testVreducibles.jl") end
+@safetestset "ArrayStats" begin include("testArrayStats.jl") end

@@ -1,4 +1,8 @@
 ## ---  Test equivalence to Base/Stdlib for other summary statistics
+    using Test
+    using Statistics
+    using VectorizedStatistics
+
 
     # Test vmean
     for nd = 1:5

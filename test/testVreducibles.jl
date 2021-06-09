@@ -1,4 +1,8 @@
 ## --- Test equivalence to Base/Stdlib for `vreduce`-ables
+    using Test
+    using Statistics
+    using VectorizedStatistics
+
 
     # Test vminimum
     for nd = 1:5
