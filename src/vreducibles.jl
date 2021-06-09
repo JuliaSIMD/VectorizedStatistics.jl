@@ -16,7 +16,7 @@ for (op, name) in zip((:min, :max, :+), (:_vminimum, :_vmaximum, :_vsum))
             $name($name(A, region[1]), region[2])
         else
             # Otherwise recurse
-            $name($name(A, region[1], region[2:end]))
+            $name($name(A, region[1]), region[2:end])
         end
     end
 end
