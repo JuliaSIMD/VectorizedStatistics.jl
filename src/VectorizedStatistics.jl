@@ -8,5 +8,6 @@ module VectorizedStatistics
     include("vmean.jl")
     include("vvar.jl")
     include("vstd.jl")
+    include("vcov.jl")
 
 end
