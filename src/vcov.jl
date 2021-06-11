@@ -15,6 +15,11 @@ end
 ```julia
 vcov(x::AbstractVector, y::AbstractVector; corrected::Bool=true)
 ```
+Compute the covariance between the vectors `x` and `y`. As `Statistics.cov`,
+but vectorized.
+
+If `corrected` is `true` as is the default, Bessel's correction will be
+applied, such that the sum is scaled by `n-1` where `n = length(x)`.
 """
 function vcov(x::AbstractVector, y::AbstractVector; corrected::Bool=true)
     # Check lengths
@@ -32,6 +37,11 @@ end
 ```julia
 vcov(X::AbstractMatrix; dims::Int=1, corrected::Bool=true)
 ```
+Compute the covariance matrix of the matrix `X`, along dimension `dims`. As
+`Statistics.cov`, but vectorized.
+
+If `corrected` is `true` as is the default, Bessel's correction will be
+applied, such that the sum is scaled by `n-1` where `n = length(x)`.
 """
 function vcov(X::AbstractMatrix; dims::Int=1, corrected::Bool=true)
     Tₒ = Base.promote_op(/, eltype(X), Int)
@@ -71,10 +81,15 @@ end
 export vcov
 
 
+
 """
 ```julia
-vcor(x::AbstractVector, y::AbstractVector; corrected::Bool=true)
+vcor(x::AbstractVector, y::AbstractVector)
 ```
+Compute the (Pearson's product-moment) correlation between the vectors `x` and `y`.
+As `Statistics.cor`, but vectorized.
+
+Equivalent to `cov(x,y) / (std(x) * std(y))`.
 """
 function vcor(x::AbstractVector, y::AbstractVector; corrected::Bool=true)
     # Check lengths
@@ -95,8 +110,10 @@ end
 
 """
 ```julia
-vcor(X::AbstractMatrix; dims::Int=1, corrected::Bool=true)
+vcor(X::AbstractMatrix; dims::Int=1)
 ```
+Compute the (Pearson's product-moment) correlation matrix of the matrix `X`,
+along dimension `dims`. As `Statistics.cor`, but vectorized.
 """
 function vcor(X::AbstractMatrix; dims::Int=1, corrected::Bool=true)
     Tₒ = Base.promote_op(/, eltype(X), Int)
