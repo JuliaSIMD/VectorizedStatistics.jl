@@ -86,6 +86,7 @@
 
         # Test equivlalence when reducing over all dims
         @test vstd(A) ≈ std(A)
+        @test vstd(A, corrected=false) ≈ std(A, corrected=false)
 
         # Test equivalence when reducing over a single dimension
         for i = 1:nd

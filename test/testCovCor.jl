@@ -2,6 +2,7 @@
 x, y = rand(1000), rand(1000)
 
 @test vcov(x,y) ≈ cov(x,y)
+@test vcov(x,y, corrected=false) ≈ cov(x,y, corrected=false)
 @test vcor(x,y) ≈ cor(x,y)
 
 
@@ -11,6 +12,7 @@ X = rand(100,10)
 @test vcov(X) ≈ cov(X)
 @test vcov(X, dims=1) ≈ cov(X, dims=1)
 @test vcov(X, dims=2) ≈ cov(X, dims=2)
+@test vcov(X, corrected=false) ≈ cov(X, corrected=false)
 
 @test vcor(X) ≈ cor(X)
 @test vcor(X, dims=1) ≈ cor(X, dims=1)
