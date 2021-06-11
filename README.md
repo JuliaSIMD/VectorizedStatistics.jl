@@ -8,9 +8,10 @@
 Fast, [LoopVectorization.jl](https://github.com/JuliaSIMD/LoopVectorization.jl)-based summary statistics.
 
 #### Implemented by reduction, recursively
+* `vsum`
 * `vminimum`
 * `vmaximum`
-* `vsum`
+* `vextrema`
 
 #### Implemented directly by compile-time loop generation
 * `vmean`
@@ -18,7 +19,7 @@ Fast, [LoopVectorization.jl](https://github.com/JuliaSIMD/LoopVectorization.jl)-
 * `vstd`
 
 #### TODO
-* (easy) direct implementations for the vreduce-able functions to reduce allocs
+* (easy) direct implementations for the vreduce-able functions to reduce allocs?
 * (harder) median, percentile: requires a good SIMD sorting function
 * Other various summary statistics (mad, aad, etc.?)
 

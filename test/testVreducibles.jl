@@ -114,4 +114,44 @@
         end
     end
 
+    # Test vextrema
+    for nd = 1:3
+        @info "Testing vextrema: $nd-dimensional arrays"
+        # Generate random array
+        A = rand((1 .+ (1:nd))...)
+
+        # Test equivlalence when reducing over all dims
+        @test vextrema(A) == extrema(A)
+
+        # Test equivalence when reducing over a single dimension
+        for i = 1:nd
+            @info "Testing vextrema: reduction over dimension $i"
+            @test vextrema(A, dims=i) == extrema(A, dims=i)
+        end
+
+        # Test equivalence when reducing over two dimensions
+        if nd > 1
+            for i = 2:nd
+                for j = 1:i-1
+                    @info "Testing vextrema: reduction over dimensions $((j,i))"
+                    @test vextrema(A, dims=(j,i)) == extrema(A, dims=(j,i))
+                end
+            end
+        end
+
+        # Test equivalence when reducing over three dimensions
+        if nd > 2
+            for i = 3:nd
+                for j = 2:i-1
+                    for k = 1:j-1
+                        @info "Testing vextrema: reduction over dimensions $((k,j,i))"
+                        @test vextrema(A, dims=(k,j,i)) == extrema(A, dims=(k,j,i))
+                    end
+                end
+            end
+        end
+    end
+
+
+
 ## -- End of File

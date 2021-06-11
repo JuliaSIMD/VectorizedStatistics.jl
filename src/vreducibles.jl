@@ -110,3 +110,36 @@ julia> vsum(A, dims=2)
 """
 vsum(A; dims=:) = _vsum(A, dims)
 export vsum
+
+
+"""
+```julia
+vextrema(A; dims)
+```
+As `Base.extrema`, but vectorized: Find the maximum and minimum of `A`,
+optionally along the dimensions specified by `dims`.
+
+## Examples
+
+julia> A = reshape(Vector(1:2:16), (2,2,2))
+2×2×2 Array{Int64, 3}:
+ [:, :, 1] =
+  1  5
+  3  7
+
+ [:, :, 2] =
+   9  13
+  11  15
+
+julia> extrema(A, dims = (1,2))
+1×1×2 Array{Tuple{Int64, Int64}, 3}:
+ [:, :, 1] =
+  (1, 7)
+
+ [:, :, 2] =
+  (9, 15)
+"""
+vextrema(A; dims=:) = _vextrema(A, dims)
+_vextrema(A, region) = collect(zip(_vminimum(A, region), _vmaximum(A, region)))
+_vextrema(A, ::Colon) = (_vminimum(A, :), _vmaximum(A, :))
+export vextrema
