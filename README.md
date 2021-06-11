@@ -13,10 +13,12 @@ Fast, [LoopVectorization.jl](https://github.com/JuliaSIMD/LoopVectorization.jl)-
 * `vmaximum`
 * `vextrema`
 
-#### Implemented directly by compile-time loop generation
+#### Implemented directly by compile-time loop generation or manually-coded loops
 * `vmean`
 * `vvar`
 * `vstd`
+* `vcov`
+* `vcor`
 
 #### TODO
 * (easy) direct implementations for the vreduce-able functions to reduce allocs?
