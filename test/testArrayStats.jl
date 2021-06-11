@@ -4,7 +4,7 @@
     for nd = 1:5
         @info "Testing vmean: $nd-dimensional arrays"
         # Generate random array
-        A = rand((1 .+ (1:nd))...)
+        A = rand((2 .+ (1:nd))...)
 
         # Test equivlalence when reducing over all dims
         @test vmean(A) ≈ mean(A)
@@ -43,7 +43,7 @@
     for nd = 1:5
         @info "Testing vvar: $nd-dimensional arrays"
         # Generate random array
-        A = randn((10 .+ (1:nd))...)
+        A = randn((2 .+ (1:nd))...)
 
         # Test equivlalence when reducing over all dims
         @test vvar(A, corrected=false) ≈ var(A, corrected=false);
@@ -82,7 +82,7 @@
     for nd = 1:5
         @info "Testing vstd: $nd-dimensional arrays"
         # Generate random array
-        A = randn((10 .+ (1:nd))...)
+        A = randn((2 .+ (1:nd))...)
 
         # Test equivlalence when reducing over all dims
         @test vstd(A) ≈ std(A)
@@ -116,5 +116,12 @@
             end
         end
     end
+
+    # Test fallbacks for complex reductions
+    A = randn((2 .+ (1:6))...);
+    @test vmean(A, dims=(4,5,6)) ≈ mean(A, dims=(4,5,6))
+    @test vstd(A, dims=(4,5,6)) ≈ std(A, dims=(4,5,6))
+    @test vstd(A, dims=(4,5,6)) ≈ vstd(A, dims=(4,5,6), mean=vmean(A, dims=(4,5,6)))
+
 
 ## -- End of File
