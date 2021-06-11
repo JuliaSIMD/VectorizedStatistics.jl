@@ -2,10 +2,12 @@
 ```julia
 vstd(A; dims=:, mean=nothing, corrected=true)
 ```
-As `Statistics.var`, but vectorized: compute the variance of all elements in `A`,
-optionally over dimensions specified by `dims`. A precomputed `mean` may optionally
-be provided, which results in a somewhat faster calculation. If `corrected` is `true`,
-then _Bessel's correction_ is applied.
+Compute the variance of all elements in `A`, optionally over dimensions specified by `dims`.
+As `Statistics.var`, but vectorized.
+
+A precomputed `mean` may optionally be provided, which results in a somewhat faster
+calculation. If `corrected` is `true`, then _Bessel's correction_ is applied, such
+that the sum is divided by `n-1` rather than `n`.
 
 ## Examples
 ```julia

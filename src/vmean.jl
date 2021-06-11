@@ -2,8 +2,8 @@
 ```julia
 vmean(A; dims)
 ```
-As `Statistics.mean`, but vectorized: compute the mean of all elements in `A`,
-optionally over dimensions specified by `dims`.
+Compute the mean of all elements in `A`, optionally over dimensions specified by `dims`. 
+As `Statistics.mean`, but vectorized.
 
 ## Examples
 ```julia

@@ -26,8 +26,8 @@ end
 ```julia
 vminimum(A; dims)
 ```
-As `Base.minimum`, but vectorized: find the least value contained in `A`,
-optionally over dimensions specified by `dims`.
+Find the least value contained in `A`, optionally over dimensions specified by `dims`.
+As `Base.minimum`, but vectorized
 
 ## Examples
 ```julia
@@ -56,8 +56,8 @@ export vminimum
 ```julia
 vmaximum(A; dims)
 ```
-As `Base.maximum`, but vectorized: find the greatest value contained in `A`,
-optionally over dimensions specified by `dims`.
+Find the greatest value contained in `A`, optionally over dimensions specified by `dims`.
+As `Base.maximum`, but vectorized.
 
 ## Examples
 ```julia
@@ -86,8 +86,8 @@ export vmaximum
 ```julia
 vsum(A; dims)
 ```
-As `Base.sum`, but vectorized: summate the values contained in `A`,
-optionally over dimensions specified by `dims`.
+Summate the values contained in `A`, optionally over dimensions specified by `dims`.
+As `Base.sum`, but vectorized.
 
 ## Examples
 ```julia
@@ -116,8 +116,8 @@ export vsum
 ```julia
 vextrema(A; dims)
 ```
-As `Base.extrema`, but vectorized: Find the maximum and minimum of `A`,
-optionally along the dimensions specified by `dims`.
+Find the maximum and minimum of `A`, optionally along the dimensions specified by `dims`.
+As `Base.extrema`, but vectorized.
 
 ## Examples
 
