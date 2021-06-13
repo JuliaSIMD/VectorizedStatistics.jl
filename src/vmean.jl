@@ -2,7 +2,7 @@
 ```julia
 vmean(A; dims)
 ```
-Compute the mean of all elements in `A`, optionally over dimensions specified by `dims`. 
+Compute the mean of all elements in `A`, optionally over dimensions specified by `dims`.
 As `Statistics.mean`, but vectorized.
 
 ## Examples
@@ -64,12 +64,12 @@ end
 function staticdim_mean_quote(static_dims::Vector{Int}, N::Int)
   M = length(static_dims)
   # `static_dims` now contains every dim we're taking the mean over.
-  Bv = Expr(:call, :view, :B)
+  Bᵥ = Expr(:call, :view, :B)
   reduct_inds = Int[]
   nonreduct_inds = Int[]
   # Firstly, build our expressions for indexing each array
   Aind = :(A[])
-  Bind = :(Bv[])
+  Bind = :(Bᵥ[])
   inds = Vector{Symbol}(undef, N)
   len = Expr(:call, :*)
   for n ∈ 1:N
@@ -78,11 +78,11 @@ function staticdim_mean_quote(static_dims::Vector{Int}, N::Int)
     push!(Aind.args, ind)
     if n ∈ static_dims
       push!(reduct_inds, n)
-      push!(Bv.args, :(firstindex(B,$n)))
+      push!(Bᵥ.args, :(firstindex(B,$n)))
       push!(len.args, :(size(A, $n)))
     else
       push!(nonreduct_inds, n)
-      push!(Bv.args, :)
+      push!(Bᵥ.args, :)
       push!(Bind.args, ind)
     end
   end
@@ -99,7 +99,7 @@ function staticdim_mean_quote(static_dims::Vector{Int}, N::Int)
   end
   rblock = block
   # Push more things here if you want them at the beginning of the reduction loop
-  push!(rblock.args, :(Σ = zero(eltype(Bv))))
+  push!(rblock.args, :(Σ = zero(eltype(Bᵥ))))
   # Build the reduction loop
   for n ∈ reduct_inds
     newblock = Expr(:block)
@@ -113,7 +113,7 @@ function staticdim_mean_quote(static_dims::Vector{Int}, N::Int)
   # Put it all together
   quote
     invdenom = inv($len)
-    Bv = $Bv
+    Bᵥ = $Bᵥ
     @avx $loops
     return B
   end
