@@ -1,9 +1,8 @@
 # VectorizedStatistics
 
-[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://brenhinkeller.github.io/VectorizedStatistics.jl/stable)
-[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://brenhinkeller.github.io/VectorizedStatistics.jl/dev)
-[![Build Status](https://github.com/brenhinkeller/VectorizedStatistics.jl/workflows/CI/badge.svg)](https://github.com/brenhinkeller/VectorizedStatistics.jl/actions)
-[![Coverage](https://codecov.io/gh/brenhinkeller/VectorizedStatistics.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/brenhinkeller/VectorizedStatistics.jl)
+[![Dev][docs-dev-img]][docs-dev-url]
+[![Build Status][ci-img]][ci-url]
+[![codecov.io][codecov-img]][codecov-url]
 
 Fast, [LoopVectorization.jl](https://github.com/JuliaSIMD/LoopVectorization.jl)-based summary statistics.
 
@@ -67,3 +66,12 @@ julia> @btime vstd($A, dims=(1,3,4))
 [:, :, 1, 1] =
  0.997894  0.992307  1.00967  0.994489  0.98649  0.99119  0.979061  1.00489  1.01303  0.979  1.00003  0.977224
 ```
+
+[docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
+[docs-stable-url]: https://brenhinkeller.github.io/VectorizedStatistics.jl/stable
+[docs-dev-img]: https://img.shields.io/badge/docs-dev-blue.svg
+[docs-dev-url]: https://brenhinkeller.github.io/VectorizedStatistics.jl/dev
+[ci-img]: https://github.com/brenhinkeller/VectorizedStatistics.jl/workflows/CI/badge.svg
+[ci-url]: https://github.com/brenhinkeller/VectorizedStatistics.jl/actions
+[codecov-img]: https://codecov.io/gh/brenhinkeller/VectorizedStatistics.jl/branch/main/graph/badge.svg
+[codecov-url]: https://codecov.io/gh/brenhinkeller/VectorizedStatistics.jl
