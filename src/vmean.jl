@@ -43,7 +43,9 @@ end
 
 # Reduce all the dims!
 function _vmean(A, ::Colon)
-    Σ = zero(eltype(A))
+    # Promote type of accumulator to avoid overflow
+    Tₒ = Base.promote_op(/, eltype(A), Int)
+    Σ = zero(Tₒ)
     @avx for i ∈ eachindex(A)
         Σ += A[i]
     end

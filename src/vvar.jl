@@ -39,7 +39,8 @@ _vvar(::Nothing, corrected::Bool, A, dims::Tuple) = _vvar!(_vmean(A, dims), corr
 function _vvar(::Nothing, corrected::Bool, A, ::Colon)
     # Reduce all the dims!
     n = length(A)
-    Σ = zero(eltype(A))
+    Tₒ = Base.promote_op(/, eltype(A), Int)
+    Σ = zero(Tₒ)
     @avx for i ∈ eachindex(A)
             Σ += A[i]
     end
