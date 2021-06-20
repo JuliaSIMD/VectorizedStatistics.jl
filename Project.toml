@@ -1,6 +1,6 @@
 name = "VectorizedStatistics"
 uuid = "3b853605-1c98-4422-8364-4bd93ee0529e"
-authors = ["C. Brenhin Keller"]
+authors = ["C. Brenhin Keller", "Chris Elrod"]
 version = "0.1.0"
 
 [deps]
