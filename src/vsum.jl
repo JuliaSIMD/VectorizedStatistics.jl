@@ -104,7 +104,7 @@ function staticdim_sum_quote(static_dims::Vector{Int}, N::Int)
   # Push more things here if you want them in the innermost loop
   push!(block.args, :(Σ += $Aind))
   # Push more things here if you want them at the end of the reduction loop
-  push!(rblock.args, :($Bind = Σ))
+  push!(rblock.args, :($Bind = Σ * one(eltype(Bᵥ))))
   # Put it all together
   quote
     Bᵥ = $Bᵥ
