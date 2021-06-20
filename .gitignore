@@ -5,3 +5,6 @@
 .DS_Store
 Manifest.toml
 /etc
+docs/Manifest.toml
+*#
+*~
