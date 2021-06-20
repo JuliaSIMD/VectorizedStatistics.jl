@@ -162,11 +162,11 @@ end
 # Efficient @generated in-place mean
 @generated function _vmean!(B::AbstractArray{Tₒ,N}, A::AbstractArray{T,N}, dims::D) where {Tₒ,T,N,M,D<:Tuple{Vararg{Integer,M}}}
   N == M && return :(B[1] = _vmean(A, :); B)
-  total_combinations = binomial(N,M)
-  if total_combinations > 10
-    # Fallback, for overly-complex reductions
-    return :(_vmean_recursive!(B, A, dims))
-  else
+  # total_combinations = binomial(N,M)
+  # if total_combinations > 10
+  #   # Fallback, for overly-complex reductions
+  #   return :(_vmean_recursive!(B, A, dims))
+  # else
     branches_mean_quote(N, M, D)
-  end
+  # end
 end

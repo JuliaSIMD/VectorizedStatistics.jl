@@ -183,11 +183,11 @@ end
 # Efficient @generated in-place var
 @generated function _vvar!(B::AbstractArray{Tₒ,N}, corrected::Bool, A::AbstractArray{T,N}, dims::D) where {Tₒ,T,N,M,D<:Tuple{Vararg{Integer,M}}}
   N == M && return :(B[1] = _vvar(B[1], corrected, A, :); B)
-  total_combinations = binomial(N,M)
-  if total_combinations > 10
-    # Fallback, for overly-complex reductions
-    return :(_vvar_recursive!(B, corrected, A, dims))
-  else
+  # total_combinations = binomial(N,M)
+  # if total_combinations > 10
+  #   # Fallback, for overly-complex reductions
+  #   return :(_vvar_recursive!(B, corrected, A, dims))
+  # else
     branches_var_quote(N, M, D)
-  end
+  # end
 end
