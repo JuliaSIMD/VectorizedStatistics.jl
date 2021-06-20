@@ -1,5 +1,5 @@
 
-for (op, name) in zip((:min, :max, :+), (:_vminimum, :_vmaximum, :_vsum))
+for (op, name) in zip((:min, :max), (:_vminimum, :_vmaximum))
   # Reduce over all dimensions
   @eval $name(A, ::Colon) = vreduce($op, A)
 
@@ -80,36 +80,6 @@ julia>  vmaximum(A, dims=2)
 """
 vmaximum(A; dims=:) = _vmaximum(A, dims)
 export vmaximum
-
-
-"""
-```julia
-vsum(A; dims)
-```
-Summate the values contained in `A`, optionally over dimensions specified by `dims`.
-As `Base.sum`, but vectorized.
-
-## Examples
-```julia
-julia> using VectorizedStatistics
-
-julia> A = [1 2; 3 4]
-2×2 Matrix{Int64}:
- 1  2
- 3  4
-
-julia> vsum(A, dims=1)
-1×2 Matrix{Int64}:
- 4  6
-
-julia> vsum(A, dims=2)
- 2×1 Matrix{Int64}:
- 3
- 7
-```
-"""
-vsum(A; dims=:) = _vsum(A, dims)
-export vsum
 
 
 """

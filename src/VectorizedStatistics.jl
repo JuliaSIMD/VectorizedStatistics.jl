@@ -6,6 +6,7 @@ module VectorizedStatistics
 
     include("vreducibles.jl")
     include("vmean.jl")
+    include("vsum.jl")
     include("vvar.jl")
     include("vstd.jl")
     include("vcov.jl")
