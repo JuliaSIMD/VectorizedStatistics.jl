@@ -52,13 +52,6 @@ function _vmean(A, ::Colon)
     return Σ / length(A)
 end
 
-# Recursive fallback method for overly-complex reductions
-function _vmean_recursive!(B::AbstractArray, A::AbstractArray, dims)
-    invn = length(B)/length(A)
-    B = _vsum(A, dims)
-    B .*= invn
-    return B
-end
 
 # Chris Elrod metaprogramming magic:
 # Generate customized set of loops for a given ndims and a vector
@@ -162,11 +155,5 @@ end
 # Efficient @generated in-place mean
 @generated function _vmean!(B::AbstractArray{Tₒ,N}, A::AbstractArray{T,N}, dims::D) where {Tₒ,T,N,M,D<:Tuple{Vararg{Integer,M}}}
   N == M && return :(B[1] = _vmean(A, :); B)
-  # total_combinations = binomial(N,M)
-  # if total_combinations > 10
-  #   # Fallback, for overly-complex reductions
-  #   return :(_vmean_recursive!(B, A, dims))
-  # else
-    branches_mean_quote(N, M, D)
-  # end
+  branches_mean_quote(N, M, D)
 end

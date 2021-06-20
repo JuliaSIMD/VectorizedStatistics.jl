@@ -68,17 +68,6 @@ function _vvar(μ::Number, corrected::Bool, A, ::Colon)
     return σ² / (n-corrected)
 end
 
-# Recursive fallback method for overly-complex reductions
-function _vvar_recursive!(B::AbstractArray, corrected::Bool, A::AbstractArray, dims)
-    n = length(A)/length(B) - corrected
-    invn = inv(n)
-    δ = A .- B
-    δ .*= δ
-    B = _vsum(δ, dims)
-    B .*= invn
-    return B
-end
-
 # Chris Elrod metaprogramming magic:
 # Generate customized set of loops for a given ndims and a vector
 # `static_dims` of dimensions to reduce over
@@ -183,11 +172,5 @@ end
 # Efficient @generated in-place var
 @generated function _vvar!(B::AbstractArray{Tₒ,N}, corrected::Bool, A::AbstractArray{T,N}, dims::D) where {Tₒ,T,N,M,D<:Tuple{Vararg{Integer,M}}}
   N == M && return :(B[1] = _vvar(B[1], corrected, A, :); B)
-  # total_combinations = binomial(N,M)
-  # if total_combinations > 10
-  #   # Fallback, for overly-complex reductions
-  #   return :(_vvar_recursive!(B, corrected, A, dims))
-  # else
-    branches_var_quote(N, M, D)
-  # end
+  branches_var_quote(N, M, D)
 end
