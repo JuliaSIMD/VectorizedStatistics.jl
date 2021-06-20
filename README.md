@@ -7,13 +7,13 @@
 Fast, [LoopVectorization.jl](https://github.com/JuliaSIMD/LoopVectorization.jl)-based summary statistics.
 
 #### Implemented by reduction, recursively
-* `vsum`
 * `vminimum`
 * `vmaximum`
 * `vextrema`
 
 #### Implemented directly by compile-time loop generation or manually-coded loops
 * `vmean`
+* `vsum`
 * `vvar`
 * `vstd`
 * `vcov`
