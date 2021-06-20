@@ -46,7 +46,7 @@ function _vsum(A, ::Colon)
     # Promote type of accumulator to avoid overflow
     Tₒ = Base.promote_op(+, eltype(A), Int)
     Σ = zero(Tₒ)
-    @avx for i ∈ eachindex(A)
+    @turbo for i ∈ eachindex(A)
         Σ += A[i]
     end
     return Σ
@@ -108,7 +108,7 @@ function staticdim_sum_quote(static_dims::Vector{Int}, N::Int)
   # Put it all together
   quote
     Bᵥ = $Bᵥ
-    @avx $loops
+    @turbo $loops
     return B
   end
 end

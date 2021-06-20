@@ -33,7 +33,7 @@ export vstd
 
 sqrt!(x::Number) = sqrt(x)
 function sqrt!(A::AbstractArray)
-    @avx for i ∈ eachindex(A)
+    @turbo for i ∈ eachindex(A)
         A[i] = sqrt(A[i])
     end
     return A

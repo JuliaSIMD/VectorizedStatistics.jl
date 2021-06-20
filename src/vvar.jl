@@ -41,12 +41,12 @@ function _vvar(::Nothing, corrected::Bool, A, ::Colon)
     n = length(A)
     Tₒ = Base.promote_op(/, eltype(A), Int)
     Σ = zero(Tₒ)
-    @avx for i ∈ eachindex(A)
+    @turbo for i ∈ eachindex(A)
             Σ += A[i]
     end
     μ = Σ / n
     σ² = zero(typeof(μ))
-    @avx for i ∈ eachindex(A)
+    @turbo for i ∈ eachindex(A)
             δ = A[i] - μ
             σ² += δ * δ
     end
@@ -61,7 +61,7 @@ function _vvar(μ::Number, corrected::Bool, A, ::Colon)
     # Reduce all the dims!
     n = length(A)
     σ² = zero(typeof(μ))
-    @avx for i ∈ eachindex(A)
+    @turbo for i ∈ eachindex(A)
         δ = A[i] - μ
         σ² += δ * δ
     end
@@ -126,7 +126,7 @@ function staticdim_var_quote(static_dims::Vector{Int}, N::Int)
   quote
     invdenom = inv(($len) - corrected)
     Bᵥ = $Bᵥ
-    @avx $loops
+    @turbo $loops
     return B
   end
 end
