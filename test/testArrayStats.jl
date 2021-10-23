@@ -7,12 +7,16 @@
         A = rand((2 .+ (1:nd))...)
 
         # Test equivlalence when reducing over all dims
-        @test vmean(A) ≈ mean(A)
+        μ = mean(A)
+        @test vmean(A) ≈ μ
+        @test vtmean(A) ≈ μ
 
         # Test equivalence when reducing over a single dimension
         for i = 1:nd
             @info "Testing vmean: reduction over dimension $i"
-            @test vmean(A, dims=i) ≈ mean(A, dims=i)
+            μ = mean(A, dims=i)
+            @test vmean(A, dims=i) ≈ μ
+            @test vtmean(A, dims=i) ≈ μ
         end
 
         # Test equivalence when reducing over two dimensions
@@ -20,7 +24,9 @@
             for i = 2:nd
                 for j = 1:i-1
                     @info "Testing vmean: reduction over dimensions $((j,i))"
-                    @test vmean(A, dims=(j,i)) ≈ mean(A, dims=(j,i))
+                    μ = mean(A, dims=(j,i))
+                    @test vmean(A, dims=(j,i)) ≈ μ
+                    @test vtmean(A, dims=(j,i)) ≈ μ
                 end
             end
         end
@@ -31,7 +37,9 @@
                 for j = 2:i-1
                     for k = 1:j-1
                         @info "Testing vmean: reduction over dimensions $((k,j,i))"
-                        @test vmean(A, dims=(k,j,i)) ≈ mean(A, dims=(k,j,i))
+                        μ = mean(A, dims=(k,j,i))
+                        @test vmean(A, dims=(k,j,i)) ≈ μ
+                        @test vtmean(A, dims=(k,j,i)) ≈ μ
                     end
                 end
             end
@@ -44,7 +52,9 @@
                     for k = 1:j-1
                         for l = 1:k-1
                             @info "Testing vmean: reduction over dimensions $((l,k,j,i))"
-                            @test vmean(A, dims=(l,k,j,i)) ≈ mean(A, dims=(l,k,j,i))
+                            μ = mean(A, dims=(l,k,j,i))
+                            @test vmean(A, dims=(l,k,j,i)) ≈ μ
+                            @test vtmean(A, dims=(l,k,j,i)) ≈ μ
                         end
                     end
                 end
@@ -60,12 +70,16 @@
         A = randn((2 .+ (1:nd))...)
 
         # Test equivlalence when reducing over all dims
-        @test vvar(A, corrected=false) ≈ var(A, corrected=false);
+        σ² = var(A, corrected=false)
+        @test vvar(A, corrected=false) ≈ σ²
+        @test vtvar(A, corrected=false) ≈ σ²
 
         # Test equivalence when reducing over a single dimension
         for i = 1:nd
             @info "Testing vvar: reduction over dimension $i"
-            @test vvar(A, dims=i, corrected=false) ≈ var(A, dims=i, corrected=false);
+            σ² = var(A, dims=i, corrected=false)
+            @test vvar(A, dims=i, corrected=false) ≈ σ²
+            @test vtvar(A, dims=i, corrected=false) ≈ σ²
         end
 
         # Test equivalence when reducing over two dimensions
@@ -73,7 +87,9 @@
             for i = 2:nd
                 for j = 1:i-1
                     @info "Testing vvar: reduction over dimensions $((j,i))"
-                    @test vvar(A, dims=(j,i), corrected=false) ≈ var(A, dims=(j,i), corrected=false);
+                    σ² = var(A, dims=(j,i), corrected=false)
+                    @test vvar(A, dims=(j,i), corrected=false) ≈ σ²
+                    @test vtvar(A, dims=(j,i), corrected=false) ≈ σ²
                 end
             end
         end
@@ -84,7 +100,9 @@
                 for j = 2:i-1
                     for k = 1:j-1
                         @info "Testing vvar: reduction over dimensions $((k,j,i))"
-                        @test vvar(A, dims=(k,j,i)) ≈ var(A, dims=(k,j,i))
+                        σ² = var(A, dims=(k,j,i))
+                        @test vvar(A, dims=(k,j,i)) ≈ σ²
+                        @test vtvar(A, dims=(k,j,i)) ≈ σ²
                     end
                 end
             end
@@ -99,13 +117,13 @@
         A = randn((2 .+ (1:nd))...)
 
         # Test equivlalence when reducing over all dims
-        @test vstd(A) ≈ std(A)
-        @test vstd(A, corrected=false) ≈ std(A, corrected=false)
+        @test vtstd(A) ≈ vstd(A) ≈ std(A)
+        @test vtstd(A, corrected=false) ≈ vstd(A, corrected=false) ≈ std(A, corrected=false)
 
         # Test equivalence when reducing over a single dimension
         for i = 1:nd
             @info "Testing vstd: reduction over dimension $i"
-            @test vstd(A, dims=i) ≈ std(A, dims=i)
+            @test vtstd(A, dims=i) ≈ vstd(A, dims=i) ≈ std(A, dims=i)
         end
 
         # Test equivalence when reducing over two dimensions
