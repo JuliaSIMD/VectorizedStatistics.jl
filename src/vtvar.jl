@@ -174,3 +174,20 @@ end
   N == M && return :(B[1] = _vtvar(B[1], corrected, A, :); B)
   branches_tvar_quote(N, M, D)
 end
+
+"""
+```julia
+vtstd(A; dims=:, mean=nothing, corrected=true)
+```
+As `vstd`, but multithreaded.
+"""
+vtstd(A; dims=:, mean=nothing, corrected=true) = sqrtt!(_vtvar(mean, corrected, A, dims))
+export vtstd
+
+sqrtt!(x::Number) = sqrt(x)
+function sqrtt!(A::AbstractArray)
+    @tturbo for i ∈ eachindex(A)
+        A[i] = sqrt(A[i])
+    end
+    return A
+end
