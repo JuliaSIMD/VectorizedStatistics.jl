@@ -1,5 +1,52 @@
 ## ---  Test equivalence to Base/Stdlib for other summary statistics
 
+    # Test vsum
+    for nd = 1:5
+        @info "Testing vsum: $nd-dimensional arrays"
+        # Generate random array
+        A = rand((1 .+ (1:nd))...)
+
+        # Test equivlalence when reducing over all dims
+        Σ = sum(A)
+        @test vsum(A) ≈ Σ
+        @test vtsum(A) ≈ Σ
+
+        # Test equivalence when reducing over a single dimension
+        for i = 1:nd
+            @info "Testing vsum: reduction over dimension $i"
+            Σ = sum(A, dims=i)
+            @test vsum(A, dims=i) ≈ Σ
+            @test vtsum(A, dims=i) ≈ Σ
+        end
+
+        # Test equivalence when reducing over two dimensions
+        if nd > 1
+            for i = 2:nd
+                for j = 1:i-1
+                    @info "Testing vsum: reduction over dimensions $((j,i))"
+                    Σ = sum(A, dims=(j,i))
+                    @test vsum(A, dims=(j,i)) ≈ Σ
+                    @test vtsum(A, dims=(j,i)) ≈ Σ
+                end
+            end
+        end
+
+        # Test equivalence when reducing over three dimensions
+        if nd > 2
+            for i = 3:nd
+                for j = 2:i-1
+                    for k = 1:j-1
+                        @info "Testing vsum: reduction over dimensions $((k,j,i))"
+                        Σ = sum(A, dims=(k,j,i))
+                        @test vsum(A, dims=(k,j,i)) ≈ Σ
+                        @test vtsum(A, dims=(k,j,i)) ≈ Σ
+                    end
+                end
+            end
+        end
+    end
+
+
     # Test vmean
     for nd = 1:5
         @info "Testing vmean: $nd-dimensional arrays"
