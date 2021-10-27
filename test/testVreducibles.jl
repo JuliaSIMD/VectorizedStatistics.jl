@@ -76,44 +76,6 @@
         end
     end
 
-    # Test vsum
-    for nd = 1:5
-        @info "Testing vsum: $nd-dimensional arrays"
-        # Generate random array
-        A = rand((1 .+ (1:nd))...)
-
-        # Test equivlalence when reducing over all dims
-        @test vsum(A) ≈ sum(A)
-
-        # Test equivalence when reducing over a single dimension
-        for i = 1:nd
-            @info "Testing vsum: reduction over dimension $i"
-            @test vsum(A, dims=i) ≈ sum(A, dims=i)
-        end
-
-        # Test equivalence when reducing over two dimensions
-        if nd > 1
-            for i = 2:nd
-                for j = 1:i-1
-                    @info "Testing vsum: reduction over dimensions $((j,i))"
-                    @test vsum(A, dims=(j,i)) ≈ sum(A, dims=(j,i))
-                end
-            end
-        end
-
-        # Test equivalence when reducing over three dimensions
-        if nd > 2
-            for i = 3:nd
-                for j = 2:i-1
-                    for k = 1:j-1
-                        @info "Testing vsum: reduction over dimensions $((k,j,i))"
-                        @test vsum(A, dims=(k,j,i)) ≈ sum(A, dims=(k,j,i))
-                    end
-                end
-            end
-        end
-    end
-
     # Test vextrema
     for nd = 1:3
         @info "Testing vextrema: $nd-dimensional arrays"

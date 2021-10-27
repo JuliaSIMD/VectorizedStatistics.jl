@@ -4,7 +4,10 @@ module VectorizedStatistics
 
     _dim(::Type{StaticInt{N}}) where {N} = N::Int
 
+    # Implemented by reduction, recursively
     include("vreducibles.jl")
+
+    # Implemented with @generated functions, single- and multithreaded
     include("vmean.jl")
     include("vsum.jl")
     include("vvar.jl")

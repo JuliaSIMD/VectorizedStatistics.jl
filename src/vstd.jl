@@ -1,9 +1,9 @@
 """
 ```julia
-vstd(A; dims=:, mean=nothing, corrected=true)
+vstd(A; dims=:, mean=nothing, corrected=true, multithreaded=:auto)
 ```
 Compute the variance of all elements in `A`, optionally over dimensions specified by `dims`.
-As `Statistics.var`, but vectorized.
+As `Statistics.var`, but vectorized and (optionally) multithreaded.
 
 A precomputed `mean` may optionally be provided, which results in a somewhat faster
 calculation. If `corrected` is `true`, then _Bessel's correction_ is applied, such
@@ -28,7 +28,13 @@ julia> vstd(A, dims=2)
  0.7071067811865476
 ```
 """
-vstd(A; dims=:, mean=nothing, corrected=true) = sqrt!(_vvar(mean, corrected, A, dims))
+function vstd(A; dims=:, mean=nothing, corrected=true, multithreaded=:auto)
+    if (multithreaded==:auto && length(A) > 4095) || multithreaded==true
+        _vtstd(mean, corrected, A, dims)
+    else
+        _vstd(mean, corrected, A, dims)
+    end
+end
 export vstd
 
 sqrt!(x::Number) = sqrt(x)
@@ -38,3 +44,15 @@ function sqrt!(A::AbstractArray)
     end
     return A
 end
+
+_vstd(mean, corrected, A, dims) = sqrt!(_vvar(mean, corrected, A, dims))
+
+sqrtt!(x::Number) = sqrt(x)
+function sqrtt!(A::AbstractArray)
+    @tturbo for i ∈ eachindex(A)
+        A[i] = sqrt(A[i])
+    end
+    return A
+end
+
+_vtstd(mean, corrected, A, dims) = sqrtt!(_vtvar(mean, corrected, A, dims))
