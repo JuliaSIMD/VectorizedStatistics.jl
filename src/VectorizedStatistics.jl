@@ -7,17 +7,11 @@ module VectorizedStatistics
     # Implemented by reduction, recursively
     include("vreducibles.jl")
 
-    # Implemented with @generated functions, singlethreaded (@turbo)
+    # Implemented with @generated functions, single- and multithreaded
     include("vmean.jl")
     include("vsum.jl")
     include("vvar.jl")
+    include("vstd.jl")
     include("vcov.jl")
-
-    # Implemented with @generated functions, multithreaded (@tturbo)
-    include("vtmean.jl")
-    include("vtsum.jl")
-    include("vtvar.jl")
-    include("vtcov.jl")
-
 
 end
