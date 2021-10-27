@@ -197,7 +197,7 @@ end
 # Chris Elrod metaprogramming magic:
 # Generate customized set of loops for a given ndims and a vector
 # `static_dims` of dimensions to reduce over
-function staticdim_sum_quote(static_dims::Vector{Int}, N::Int)
+function staticdim_tsum_quote(static_dims::Vector{Int}, N::Int)
   M = length(static_dims)
   # `static_dims` now contains every dim we're taking the sum over.
   Bᵥ = Expr(:call, :view, :B)
@@ -257,7 +257,7 @@ end
 # Chris Elrod metaprogramming magic:
 # Turn non-static integers in `dims` tuple into `StaticInt`s
 # so we can construct `static_dims` vector within @generated code
-function branches_sum_quote(N::Int, M::Int, D)
+function branches_tsum_quote(N::Int, M::Int, D)
   static_dims = Int[]
   for m ∈ 1:M
     param = D.parameters[m]
@@ -289,11 +289,11 @@ function branches_sum_quote(N::Int, M::Int, D)
       return q
     end
   end
-  staticdim_sum_quote(static_dims, N)
+  staticdim_tsum_quote(static_dims, N)
 end
 
 # Efficient @generated in-place sum
 @generated function _vtsum!(B::AbstractArray{Tₒ,N}, A::AbstractArray{T,N}, dims::D) where {Tₒ,T,N,M,D<:Tuple{Vararg{Integer,M}}}
   N == M && return :(B[1] = _vtsum(A, :); B)
-  branches_sum_quote(N, M, D)
+  branches_tsum_quote(N, M, D)
 end
