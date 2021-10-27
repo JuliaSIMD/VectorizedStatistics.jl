@@ -38,7 +38,7 @@ function vcov(x::AbstractVector, y::AbstractVector; corrected::Bool=true, multit
     nᵧ = length(y)
     @assert nᵪ == nᵧ
 
-    if (multithreaded==:auto && length(x) > 5120) || multithreaded==true
+    if (multithreaded==:auto && length(x) > 4095) || multithreaded==true
         μᵪ = _vtmean(x,:)
         μᵧ = _vtmean(y,:)
         σᵪᵧ = _vtcov(x, y, corrected, μᵪ, μᵧ)
@@ -61,7 +61,7 @@ If `corrected` is `true` as is the default, _Bessel's correction_ will be applie
 such that the sum is scaled by `n-1` rather than `n`, where `n = length(x)`.
 """
 function vcov(X::AbstractMatrix; dims::Int=1, corrected::Bool=true, multithreaded=:auto)
-    if (multithreaded==:auto && length(A) > 5120) || multithreaded==true
+    if (multithreaded==:auto && length(A) > 4095) || multithreaded==true
         _vtcov(X, dims, corrected)
     else
         _vcov(X, dims, corrected)
@@ -156,7 +156,7 @@ function vcor(x::AbstractVector, y::AbstractVector; corrected::Bool=true, multit
     nᵧ = length(y)
     @assert nᵪ == nᵧ
 
-    if (multithreaded==:auto && length(x) > 5120) || multithreaded==true
+    if (multithreaded==:auto && length(x) > 4095) || multithreaded==true
         μᵪ = _vtmean(x,:)
         μᵧ = _vtmean(y,:)
         σᵪ = _vtstd(μᵪ, corrected, x, :)
@@ -183,7 +183,7 @@ along dimension `dims`. As `Statistics.cor`, but vectorized and (optionally)
 multithreaded.
 """
 function vcor(X::AbstractMatrix; dims::Int=1, corrected::Bool=true, multithreaded=:auto)
-    if (multithreaded==:auto && length(A) > 5120) || multithreaded==true
+    if (multithreaded==:auto && length(A) > 4095) || multithreaded==true
         _vtcor(X, dims, corrected)
     else
         _vcor(X, dims, corrected)

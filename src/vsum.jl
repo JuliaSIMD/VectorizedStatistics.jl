@@ -25,7 +25,7 @@ julia> vsum(A, dims=2)
 ```
 """
 function vsum(A; dims=:, multithreaded=:auto)
-    if (multithreaded==:auto && length(A) > 5120) || multithreaded==true
+    if (multithreaded==:auto && length(A) > 4095) || multithreaded==true
         _vtsum(A, dims)
     else
         _vsum(A, dims)
