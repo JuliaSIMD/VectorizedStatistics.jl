@@ -216,5 +216,17 @@
     @test vstd(A, dims=(4,5,6)) ≈ std(A, dims=(4,5,6))
     @test vstd(A, dims=(4,5,6)) ≈ vstd(A, dims=(4,5,6), mean=vmean(A, dims=(4,5,6)))
 
+    # Test results when diminsions are out of range
+    A = rand(10,10)
+    @test vminimum(A, dims=3) == A
+    @test vminimum(A, dims=(1,3)) == minimum(A, dims=(1,3))
+    @test vsum(A, dims=3, multithreaded=false) == vmean(A, dims=(3,4), multithreaded=false) == A
+    @test vsum(A, dims=3, multithreaded=true) == vmean(A, dims=(3,4), multithreaded=true) == A
+    @test vmean(A, dims=3, multithreaded=false) == vmean(A, dims=(3,4), multithreaded=false) == A
+    @test vmean(A, dims=3, multithreaded=true) == vmean(A, dims=(3,4), multithreaded=true) == A
+    @test isequal(vstd(A, dims=(3,4), multithreaded=false), fill(NaN, 10, 10))
+    @test isequal(vstd(A, dims=(3,4), multithreaded=true), fill(NaN, 10, 10))
+    @test vstd(A, dims=(1,3)) == vstd(A, dims=1)
+
 
 ## -- End of File
