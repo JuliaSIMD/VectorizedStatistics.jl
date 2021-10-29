@@ -90,35 +90,59 @@ function staticdim_sum_quote(static_dims::Vector{Int}, N::Int)
       push!(Bind.args, ind)
     end
   end
-  firstn = first(nonreduct_inds)
   # Secondly, build up our set of loops
-  block = Expr(:block)
-  loops = Expr(:for, :($(inds[firstn]) = indices((A,B),$firstn)), block)
-  if length(nonreduct_inds) > 1
-    for n ∈ @view(nonreduct_inds[2:end])
+  if !isempty(nonreduct_inds)
+    firstn = first(nonreduct_inds)
+    block = Expr(:block)
+    loops = Expr(:for, :($(inds[firstn]) = indices((A,B),$firstn)), block)
+    if length(nonreduct_inds) > 1
+      for n ∈ @view(nonreduct_inds[2:end])
+        newblock = Expr(:block)
+        push!(block.args, Expr(:for, :($(inds[n]) = indices((A,B),$n)), newblock))
+        block = newblock
+      end
+    end
+    rblock = block
+    # Push more things here if you want them at the beginning of the reduction loop
+    push!(rblock.args, :(Σ = zero(eltype(Bᵥ))))
+    # Build the reduction loop
+    for n ∈ reduct_inds
       newblock = Expr(:block)
-      push!(block.args, Expr(:for, :($(inds[n]) = indices((A,B),$n)), newblock))
+      push!(block.args, Expr(:for, :($(inds[n]) = axes(A,$n)), newblock))
       block = newblock
     end
-  end
-  rblock = block
-  # Push more things here if you want them at the beginning of the reduction loop
-  push!(rblock.args, :(Σ = zero(eltype(Bᵥ))))
-  # Build the reduction loop
-  for n ∈ reduct_inds
-    newblock = Expr(:block)
-    push!(block.args, Expr(:for, :($(inds[n]) = axes(A,$n)), newblock))
-    block = newblock
-  end
-  # Push more things here if you want them in the innermost loop
-  push!(block.args, :(Σ += $Aind))
-  # Push more things here if you want them at the end of the reduction loop
-  push!(rblock.args, :($Bind = Σ))
-  # Put it all together
-  quote
-    Bᵥ = $Bᵥ
-    @turbo $loops
-    return B
+    # Push more things here if you want them in the innermost loop
+    push!(block.args, :(Σ += $Aind))
+    # Push more things here if you want them at the end of the reduction loop
+    push!(rblock.args, :($Bind = Σ))
+    # Put it all together
+    return quote
+      Bᵥ = $Bᵥ
+      @turbo $loops
+      return B
+    end
+  else
+    firstn = first(reduct_inds)
+    block = Expr(:block)
+    loops = Expr(:for, :($(inds[firstn]) = axes(A,$firstn)), block)
+    # Build the reduction loop
+    if length(reduct_inds) > 1
+      for n ∈ @view(reduct_inds[2:end])
+        newblock = Expr(:block)
+        push!(block.args, Expr(:for, :($(inds[n]) = axes(A,$n)), newblock))
+        block = newblock
+      end
+    end
+    # Push more things here if you want them in the innermost loop
+    push!(block.args, :(Σ += $Aind))
+    # Put it all together
+    return quote
+      Bᵥ = $Bᵥ
+      Σ = zero(eltype(Bᵥ))
+      @turbo $loops
+      Bᵥ[] = Σ
+      return B
+    end
   end
 end
 
@@ -153,19 +177,25 @@ function branches_sum_quote(N::Int, M::Int, D)
         qold = qnew
         ifsym = :elseif
       end
-      push!(qold.args, Expr(:block, :(throw("Dimension `$dimm` not found."))))
+      # Else, if dimm ∉ 1:N, drop it from list and continue
+      tc = copy(t)
+      for r ∈ m+1:M
+        push!(tc.args, :(dims[$r]))
+      end
+      push!(qold.args, Expr(:block, :(return _vtmean!(B, A, $tc))))
       return q
     end
   end
-  staticdim_sum_quote(static_dims, N)
+  return staticdim_sum_quote(static_dims, N)
 end
 
 # Efficient @generated in-place sum
 @generated function _vsum!(B::AbstractArray{Tₒ,N}, A::AbstractArray{T,N}, dims::D) where {Tₒ,T,N,M,D<:Tuple{Vararg{Integer,M}}}
-  N == M && return :(B[1] = _vsum(A, :); B)
   branches_sum_quote(N, M, D)
 end
-
+@generated function _vsum!(B::AbstractArray{Tₒ,N}, A::AbstractArray{T,N}, dims::Tuple{}) where {Tₒ,T,N}
+  :(copyto!(B, A); return B)
+end
 
 ## As above, but multithreaded
 # Reduce one dim
@@ -222,35 +252,59 @@ function staticdim_tsum_quote(static_dims::Vector{Int}, N::Int)
       push!(Bind.args, ind)
     end
   end
-  firstn = first(nonreduct_inds)
   # Secondly, build up our set of loops
-  block = Expr(:block)
-  loops = Expr(:for, :($(inds[firstn]) = indices((A,B),$firstn)), block)
-  if length(nonreduct_inds) > 1
-    for n ∈ @view(nonreduct_inds[2:end])
+  if !isempty(nonreduct_inds)
+    firstn = first(nonreduct_inds)
+    block = Expr(:block)
+    loops = Expr(:for, :($(inds[firstn]) = indices((A,B),$firstn)), block)
+    if length(nonreduct_inds) > 1
+      for n ∈ @view(nonreduct_inds[2:end])
+        newblock = Expr(:block)
+        push!(block.args, Expr(:for, :($(inds[n]) = indices((A,B),$n)), newblock))
+        block = newblock
+      end
+    end
+    rblock = block
+    # Push more things here if you want them at the beginning of the reduction loop
+    push!(rblock.args, :(Σ = zero(eltype(Bᵥ))))
+    # Build the reduction loop
+    for n ∈ reduct_inds
       newblock = Expr(:block)
-      push!(block.args, Expr(:for, :($(inds[n]) = indices((A,B),$n)), newblock))
+      push!(block.args, Expr(:for, :($(inds[n]) = axes(A,$n)), newblock))
       block = newblock
     end
-  end
-  rblock = block
-  # Push more things here if you want them at the beginning of the reduction loop
-  push!(rblock.args, :(Σ = zero(eltype(Bᵥ))))
-  # Build the reduction loop
-  for n ∈ reduct_inds
-    newblock = Expr(:block)
-    push!(block.args, Expr(:for, :($(inds[n]) = axes(A,$n)), newblock))
-    block = newblock
-  end
-  # Push more things here if you want them in the innermost loop
-  push!(block.args, :(Σ += $Aind))
-  # Push more things here if you want them at the end of the reduction loop
-  push!(rblock.args, :($Bind = Σ))
-  # Put it all together
-  quote
-    Bᵥ = $Bᵥ
-    @tturbo $loops
-    return B
+    # Push more things here if you want them in the innermost loop
+    push!(block.args, :(Σ += $Aind))
+    # Push more things here if you want them at the end of the reduction loop
+    push!(rblock.args, :($Bind = Σ))
+    # Put it all together
+    return quote
+      Bᵥ = $Bᵥ
+      @tturbo $loops
+      return B
+    end
+  else
+    firstn = first(reduct_inds)
+    block = Expr(:block)
+    loops = Expr(:for, :($(inds[firstn]) = axes(A,$firstn)), block)
+    # Build the reduction loop
+    if length(reduct_inds) > 1
+      for n ∈ @view(reduct_inds[2:end])
+        newblock = Expr(:block)
+        push!(block.args, Expr(:for, :($(inds[n]) = axes(A,$n)), newblock))
+        block = newblock
+      end
+    end
+    # Push more things here if you want them in the innermost loop
+    push!(block.args, :(Σ += $Aind))
+    # Put it all together
+    return quote
+      Bᵥ = $Bᵥ
+      Σ = zero(eltype(Bᵥ))
+      @tturbo $loops
+      Bᵥ[] = Σ
+      return B
+    end
   end
 end
 
@@ -285,15 +339,23 @@ function branches_tsum_quote(N::Int, M::Int, D)
         qold = qnew
         ifsym = :elseif
       end
-      push!(qold.args, Expr(:block, :(throw("Dimension `$dimm` not found."))))
+      # Else, if dimm ∉ 1:N, drop it from list and continue
+      tc = copy(t)
+      for r ∈ m+1:M
+        push!(tc.args, :(dims[$r]))
+      end
+      push!(qold.args, Expr(:block, :(return _vtmean!(B, A, $tc))))
       return q
     end
   end
-  staticdim_tsum_quote(static_dims, N)
+  return staticdim_tsum_quote(static_dims, N)
 end
 
 # Efficient @generated in-place sum
 @generated function _vtsum!(B::AbstractArray{Tₒ,N}, A::AbstractArray{T,N}, dims::D) where {Tₒ,T,N,M,D<:Tuple{Vararg{Integer,M}}}
-  N == M && return :(B[1] = _vtsum(A, :); B)
   branches_tsum_quote(N, M, D)
 end
+@generated function _vtsum!(B::AbstractArray{Tₒ,N}, A::AbstractArray{T,N}, dims::Tuple{}) where {Tₒ,T,N}
+  :(copyto!(B, A); return B)
+end
+##

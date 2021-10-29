@@ -104,38 +104,64 @@ function staticdim_var_quote(static_dims::Vector{Int}, N::Int)
       push!(Bind.args, ind)
     end
   end
-  firstn = first(nonreduct_inds)
   # Secondly, build up our set of loops
-  block = Expr(:block)
-  loops = Expr(:for, :($(inds[firstn]) = indices((A,B),$firstn)), block)
-  if length(nonreduct_inds) > 1
-    for n ∈ @view(nonreduct_inds[2:end])
+  if !isempty(nonreduct_inds)
+    firstn = first(nonreduct_inds)
+    block = Expr(:block)
+    loops = Expr(:for, :($(inds[firstn]) = indices((A,B),$firstn)), block)
+    if length(nonreduct_inds) > 1
+      for n ∈ @view(nonreduct_inds[2:end])
+        newblock = Expr(:block)
+        push!(block.args, Expr(:for, :($(inds[n]) = indices((A,B),$n)), newblock))
+        block = newblock
+      end
+    end
+    rblock = block
+    # Push more things here if you want them at the beginning of the reduction loop
+    push!(rblock.args, :(μ = $Bind))
+    push!(rblock.args, :(σ² = zero(eltype(Bᵥ))))
+    # Build the reduction loop
+    for n ∈ reduct_inds
       newblock = Expr(:block)
-      push!(block.args, Expr(:for, :($(inds[n]) = indices((A,B),$n)), newblock))
+      push!(block.args, Expr(:for, :($(inds[n]) = axes(A,$n)), newblock))
       block = newblock
     end
-  end
-  rblock = block
-  # Push more things here if you want them at the beginning of the reduction loop
-  push!(rblock.args, :(μ = $Bind))
-  push!(rblock.args, :(σ² = zero(eltype(Bᵥ))))
-  # Build the reduction loop
-  for n ∈ reduct_inds
-    newblock = Expr(:block)
-    push!(block.args, Expr(:for, :($(inds[n]) = axes(A,$n)), newblock))
-    block = newblock
-  end
-  # Push more things here if you want them in the innermost loop
-  push!(block.args, :(δ = $Aind - μ))
-  push!(block.args, :(σ² += δ * δ))
-  # Push more things here if you want them at the end of the reduction loop
-  push!(rblock.args, :($Bind = σ² * invdenom))
-  # Put it all together
-  quote
-    invdenom = inv(($len) - corrected)
-    Bᵥ = $Bᵥ
-    @turbo $loops
-    return B
+    # Push more things here if you want them in the innermost loop
+    push!(block.args, :(δ = $Aind - μ))
+    push!(block.args, :(σ² += δ * δ))
+    # Push more things here if you want them at the end of the reduction loop
+    push!(rblock.args, :($Bind = σ² * invdenom))
+    # Put it all together
+    return quote
+      invdenom = inv(($len) - corrected)
+      Bᵥ = $Bᵥ
+      @turbo $loops
+      return B
+    end
+  else
+    firstn = first(reduct_inds)
+    block = Expr(:block)
+    loops = Expr(:for, :($(inds[firstn]) = axes(A,$firstn)), block)
+    if length(reduct_inds) > 1
+      for n ∈ @view(reduct_inds[2:end])
+        newblock = Expr(:block)
+        push!(block.args, Expr(:for, :($(inds[n]) = axes(A,$n)), newblock))
+        block = newblock
+      end
+    end
+    # Push more things here if you want them in the innermost loop
+    push!(block.args, :(δ = $Aind - μ))
+    push!(block.args, :(σ² += δ * δ))
+    # Put it all together
+    return quote
+      invdenom = inv(($len) - corrected)
+      Bᵥ = $Bᵥ
+      μ = Bᵥ[]
+      σ² = zero(eltype(Bᵥ))
+      @turbo $loops
+      Bᵥ[] = σ² * invdenom
+      return B
+    end
   end
 end
 
@@ -170,7 +196,12 @@ function branches_var_quote(N::Int, M::Int, D)
         qold = qnew
         ifsym = :elseif
       end
-      push!(qold.args, Expr(:block, :(throw("Dimension `$dimm` not found."))))
+      # Else, if dimm ∉ 1:N, drop it from list and continue
+      tc = copy(t)
+      for r ∈ m+1:M
+        push!(tc.args, :(dims[$r]))
+      end
+      push!(qold.args, Expr(:block, :(return _vvar!(B, corrected, A, $tc))))
       return q
     end
   end
@@ -179,8 +210,10 @@ end
 
 # Efficient @generated in-place var
 @generated function _vvar!(B::AbstractArray{Tₒ,N}, corrected::Bool, A::AbstractArray{T,N}, dims::D) where {Tₒ,T,N,M,D<:Tuple{Vararg{Integer,M}}}
-  N == M && return :(B[1] = _vvar(B[1], corrected, A, :); B)
   branches_var_quote(N, M, D)
+end
+@generated function _vvar!(B::AbstractArray{Tₒ,N}, corrected::Bool, A::AbstractArray{T,N}, dims::Tuple{}) where {Tₒ,T,N}
+  :(fill!(B, Tₒ(NaN)); return B)
 end
 
 
@@ -250,38 +283,64 @@ function staticdim_tvar_quote(static_dims::Vector{Int}, N::Int)
       push!(Bind.args, ind)
     end
   end
-  firstn = first(nonreduct_inds)
   # Secondly, build up our set of loops
-  block = Expr(:block)
-  loops = Expr(:for, :($(inds[firstn]) = indices((A,B),$firstn)), block)
-  if length(nonreduct_inds) > 1
-    for n ∈ @view(nonreduct_inds[2:end])
+  if !isempty(nonreduct_inds)
+    firstn = first(nonreduct_inds)
+    block = Expr(:block)
+    loops = Expr(:for, :($(inds[firstn]) = indices((A,B),$firstn)), block)
+    if length(nonreduct_inds) > 1
+      for n ∈ @view(nonreduct_inds[2:end])
+        newblock = Expr(:block)
+        push!(block.args, Expr(:for, :($(inds[n]) = indices((A,B),$n)), newblock))
+        block = newblock
+      end
+    end
+    rblock = block
+    # Push more things here if you want them at the beginning of the reduction loop
+    push!(rblock.args, :(μ = $Bind))
+    push!(rblock.args, :(σ² = zero(eltype(Bᵥ))))
+    # Build the reduction loop
+    for n ∈ reduct_inds
       newblock = Expr(:block)
-      push!(block.args, Expr(:for, :($(inds[n]) = indices((A,B),$n)), newblock))
+      push!(block.args, Expr(:for, :($(inds[n]) = axes(A,$n)), newblock))
       block = newblock
     end
-  end
-  rblock = block
-  # Push more things here if you want them at the beginning of the reduction loop
-  push!(rblock.args, :(μ = $Bind))
-  push!(rblock.args, :(σ² = zero(eltype(Bᵥ))))
-  # Build the reduction loop
-  for n ∈ reduct_inds
-    newblock = Expr(:block)
-    push!(block.args, Expr(:for, :($(inds[n]) = axes(A,$n)), newblock))
-    block = newblock
-  end
-  # Push more things here if you want them in the innermost loop
-  push!(block.args, :(δ = $Aind - μ))
-  push!(block.args, :(σ² += δ * δ))
-  # Push more things here if you want them at the end of the reduction loop
-  push!(rblock.args, :($Bind = σ² * invdenom))
-  # Put it all together
-  quote
-    invdenom = inv(($len) - corrected)
-    Bᵥ = $Bᵥ
-    @tturbo $loops
-    return B
+    # Push more things here if you want them in the innermost loop
+    push!(block.args, :(δ = $Aind - μ))
+    push!(block.args, :(σ² += δ * δ))
+    # Push more things here if you want them at the end of the reduction loop
+    push!(rblock.args, :($Bind = σ² * invdenom))
+    # Put it all together
+    return quote
+      invdenom = inv(($len) - corrected)
+      Bᵥ = $Bᵥ
+      @tturbo $loops
+      return B
+    end
+  else
+    firstn = first(reduct_inds)
+    block = Expr(:block)
+    loops = Expr(:for, :($(inds[firstn]) = axes(A,$firstn)), block)
+    if length(reduct_inds) > 1
+      for n ∈ @view(reduct_inds[2:end])
+        newblock = Expr(:block)
+        push!(block.args, Expr(:for, :($(inds[n]) = axes(A,$n)), newblock))
+        block = newblock
+      end
+    end
+    # Push more things here if you want them in the innermost loop
+    push!(block.args, :(δ = $Aind - μ))
+    push!(block.args, :(σ² += δ * δ))
+    # Put it all together
+    return quote
+      invdenom = inv(($len) - corrected)
+      Bᵥ = $Bᵥ
+      μ = Bᵥ[]
+      σ² = zero(eltype(Bᵥ))
+      @tturbo $loops
+      Bᵥ[] = σ² * invdenom
+      return B
+    end
   end
 end
 
@@ -316,7 +375,12 @@ function branches_tvar_quote(N::Int, M::Int, D)
         qold = qnew
         ifsym = :elseif
       end
-      push!(qold.args, Expr(:block, :(throw("Dimension `$dimm` not found."))))
+      # Else, if dimm ∉ 1:N, drop it from list and continue
+      tc = copy(t)
+      for r ∈ m+1:M
+        push!(tc.args, :(dims[$r]))
+      end
+      push!(qold.args, Expr(:block, :(return _vtvar!(B, corrected, A, $tc))))
       return q
     end
   end
@@ -325,6 +389,8 @@ end
 
 # Efficient @generated in-place var
 @generated function _vtvar!(B::AbstractArray{Tₒ,N}, corrected::Bool, A::AbstractArray{T,N}, dims::D) where {Tₒ,T,N,M,D<:Tuple{Vararg{Integer,M}}}
-  N == M && return :(B[1] = _vtvar(B[1], corrected, A, :); B)
   branches_tvar_quote(N, M, D)
+end
+@generated function _vtvar!(B::AbstractArray{Tₒ,N}, corrected::Bool, A::AbstractArray{T,N}, dims::Tuple{}) where {Tₒ,T,N}
+  :(fill!(B, Tₒ(NaN)); return B)
 end
