@@ -4,7 +4,7 @@ for (op, name) in zip((:min, :max), (:_vminimum, :_vmaximum))
   @eval $name(A, ::Colon) = vreduce($op, A)
 
   # Reduce over a single dimension
-  @eval $name(A, region::Int) = vreduce($op, A, dims=region)
+  @eval $name(A, region::Int) = region <= ndims(A) ? vreduce($op, A, dims=region) : A
 
   # General case: recursive
   @eval function $name(A::AbstractArray, region::Tuple)
