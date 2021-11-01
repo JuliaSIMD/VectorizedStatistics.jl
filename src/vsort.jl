@@ -55,14 +55,9 @@ export vsort
 
 # Sort linearly (reducing along all dimensions)
 function _vsort!(A::AbstractArray, ::Colon)
-    iₗ, iᵤ = firstindex(A), lastindex(A)
     # IF there are NaNs, move them all to the end of the array
-    A, iₗ, iᵤ = sortnans!(A, iₗ, iᵤ)
-    quicksort!(A, iₗ, iᵤ)
-end
-function _vsort!(A::AbstractArray{<:Integer}, ::Colon)
-    iₗ, iᵤ = firstindex(A), lastindex(A)
-    # If there are only integers, no need to check for NaNs first
+    A, iₗ, iᵤ = sortnans!(A)
+    # Sort the non-NaN elements
     quicksort!(A, iₗ, iᵤ)
 end
 
@@ -71,13 +66,8 @@ end
 
 # Sort linearly (reducing along all dimensions)
 function _vtsort!(A::AbstractArray, ::Colon)
-    iₗ, iᵤ = firstindex(A), lastindex(A)
     # IF there are NaNs, move them all to the end of the array
-    A, iₗ, iᵤ = sortnans!(A, iₗ, iᵤ)
-    quicksortt!(A, iₗ, iᵤ)
-end
-function _vtsort!(A::AbstractArray{<:Integer}, ::Colon)
-    iₗ, iᵤ = firstindex(A), lastindex(A)
-    # If there are only integers, no need to check for NaNs first
+    A, iₗ, iᵤ = sortnans!(A)
+    # Sort the non-NaN elements
     quicksortt!(A, iₗ, iᵤ)
 end

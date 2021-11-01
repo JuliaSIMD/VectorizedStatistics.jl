@@ -25,6 +25,8 @@ function sortnans!(A, iₗ=firstindex(A), iᵤ=lastindex(A))
     end
     return A, iₗ, iᵤ - Nₙₐₙ
 end
+# For integers, don't need to check for NaNs
+sortnans!(A::AbstractArray{<:Integer}, iₗ=firstindex(A), iᵤ=lastindex(A)) = A, iₗ, iᵤ
 
 # Partialsort based on quickselect
 function partialquicksort!(A::AbstractArray, iₗ=firstindex(A), iᵤ=lastindex(A), k=(iₗ+iᵤ)÷2)
