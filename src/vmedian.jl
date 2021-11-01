@@ -25,6 +25,13 @@ julia> vmedian(A, dims=2)
 vmedian(A; dims=:) = _vmedian!(copy(A), dims)
 export vmedian
 
+"""
+```julia
+vmedian!(A; dims, multithreaded=:auto)
+```
+As `vmedian` but will partially sort `A` around the median (using either
+`quicksort!` or `partialquicksort!` depending on the size of the array).
+"""
 vmedian!(A; dims=:) = _vmedian!(A, dims)
 export vmedian!
 

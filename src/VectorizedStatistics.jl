@@ -16,5 +16,7 @@ module VectorizedStatistics
 
     # Sorting-based statistics
     include("quicksort.jl")
+    include("vsort.jl")
+    include("vmedian.jl")
 
 end
