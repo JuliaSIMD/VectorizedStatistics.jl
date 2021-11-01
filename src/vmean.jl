@@ -184,7 +184,7 @@ function branches_mean_quote(N::Int, M::Int, D)
       for r ∈ m+1:M
         push!(tc.args, :(dims[$r]))
       end
-      push!(qold.args, Expr(:block, :(return _vtmean!(B, A, $tc))))
+      push!(qold.args, Expr(:block, :(return _vmean!(B, A, $tc))))
       return q
     end
   end
