@@ -76,3 +76,115 @@ function _vmedian!(A, ::Colon)
         return A[i½] / 1
     end
 end
+
+
+
+# Chris Elrod metaprogramming magic:
+# Generate customized set of loops for a given ndims and a vector
+# `static_dims` of dimensions to reduce over
+function staticdim_median_quote(static_dims::Vector{Int}, N::Int)
+  M = length(static_dims)
+  # `static_dims` now contains every dim we're taking the median over.
+  Bᵥ = Expr(:call, :view, :B)
+  Aᵥ = Expr(:call, :view, :A)
+  reduct_inds = Int[]
+  nonreduct_inds = Int[]
+  # Firstly, build our expressions for indexing each array
+  Aind = :(Aᵥ[])
+  Bind = :(Bᵥ[])
+  inds = Vector{Symbol}(undef, N)
+  for n ∈ 1:N
+    ind = Symbol(:i_,n)
+    inds[n] = ind
+    if n ∈ static_dims
+      push!(reduct_inds, n)
+      push!(Aᵥ.args, :)
+      push!(Bᵥ.args, :(firstindex(B,$n)))
+    else
+      push!(nonreduct_inds, n)
+      push!(Aᵥ.args, ind)
+      push!(Bᵥ.args, :)
+      push!(Bind.args, ind)
+    end
+  end
+  # Secondly, build up our set of loops
+  if !isempty(nonreduct_inds)
+    firstn = first(nonreduct_inds)
+    block = Expr(:block)
+    loops = Expr(:for, :($(inds[firstn]) = indices((A,B),$firstn)), block)
+    if length(nonreduct_inds) > 1
+      for n ∈ @view(nonreduct_inds[2:end])
+        newblock = Expr(:block)
+        push!(block.args, Expr(:for, :($(inds[n]) = indices((A,B),$n)), newblock))
+        block = newblock
+      end
+    end
+    rblock = block
+    # Push more things here if you want them at the beginning of the reduction loop
+    push!(rblock.args, :(Aᵥ = $Aᵥ))
+    push!(rblock.args, :($Bind = _vmedian!(Aᵥ, :)))
+    # Put it all together
+    return quote
+      Bᵥ = $Bᵥ
+      @inbounds $loops
+      return B
+    end
+  else
+    return quote
+      Bᵥ = $Bᵥ
+      Bᵥ[] = _vmedian!(A, :)
+      return B
+    end
+  end
+end
+
+# Chris Elrod metaprogramming magic:
+# Turn non-static integers in `dims` tuple into `StaticInt`s
+# so we can construct `static_dims` vector within @generated code
+function branches_median_quote(N::Int, M::Int, D)
+  static_dims = Int[]
+  for m ∈ 1:M
+    param = D.parameters[m]
+    if param <: StaticInt
+      new_dim = _dim(param)::Int
+      @assert new_dim ∉ static_dims
+      push!(static_dims, new_dim)
+    else
+      t = Expr(:tuple)
+      for n ∈ static_dims
+        push!(t.args, :(StaticInt{$n}()))
+      end
+      q = Expr(:block, :(dimm = dims[$m]))
+      qold = q
+      ifsym = :if
+      for n ∈ 1:N
+        n ∈ static_dims && continue
+        tc = copy(t)
+        push!(tc.args, :(StaticInt{$n}()))
+        qnew = Expr(ifsym, :(dimm == $n), :(return _vmedian!(B, A, $tc)))
+        for r ∈ m+1:M
+          push!(tc.args, :(dims[$r]))
+        end
+        push!(qold.args, qnew)
+        qold = qnew
+        ifsym = :elseif
+      end
+      # Else, if dimm ∉ 1:N, drop it from list and continue
+      tc = copy(t)
+      for r ∈ m+1:M
+        push!(tc.args, :(dims[$r]))
+      end
+      push!(qold.args, Expr(:block, :(return _vmedian!(B, A, $tc))))
+      return q
+    end
+  end
+  return staticdim_median_quote(static_dims, N)
+end
+
+# Efficient @generated in-place median
+@generated function _vmedian!(B::AbstractArray{Tₒ,N}, A::AbstractArray{T,N}, dims::D) where {Tₒ,T,N,M,D<:Tuple{Vararg{Integer,M}}}
+  branches_median_quote(N, M, D)
+end
+@generated function _vmedian!(B::AbstractArray{Tₒ,N}, A::AbstractArray{T,N}, dims::Tuple{}) where {Tₒ,T,N}
+  :(copyto!(B, A); return B)
+end
