@@ -75,7 +75,6 @@ function staticdim_sum_quote(static_dims::Vector{Int}, N::Int)
   Aind = :(A[])
   Bind = :(Bᵥ[])
   inds = Vector{Symbol}(undef, N)
-  len = Expr(:call, :*)
   for n ∈ 1:N
     ind = Symbol(:i_,n)
     inds[n] = ind
@@ -83,7 +82,6 @@ function staticdim_sum_quote(static_dims::Vector{Int}, N::Int)
     if n ∈ static_dims
       push!(reduct_inds, n)
       push!(Bᵥ.args, :(firstindex(B,$n)))
-      push!(len.args, :(size(A, $n)))
     else
       push!(nonreduct_inds, n)
       push!(Bᵥ.args, :)
@@ -237,7 +235,6 @@ function staticdim_tsum_quote(static_dims::Vector{Int}, N::Int)
   Aind = :(A[])
   Bind = :(Bᵥ[])
   inds = Vector{Symbol}(undef, N)
-  len = Expr(:call, :*)
   for n ∈ 1:N
     ind = Symbol(:i_,n)
     inds[n] = ind
@@ -245,7 +242,6 @@ function staticdim_tsum_quote(static_dims::Vector{Int}, N::Int)
     if n ∈ static_dims
       push!(reduct_inds, n)
       push!(Bᵥ.args, :(firstindex(B,$n)))
-      push!(len.args, :(size(A, $n)))
     else
       push!(nonreduct_inds, n)
       push!(Bᵥ.args, :)
