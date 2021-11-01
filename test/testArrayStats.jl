@@ -210,6 +210,10 @@
         end
     end
 
+    # Test vmedian
+    A = rand(100)
+    @test vmedian(A) == median(A)
+
     # Test fallbacks for complex reductions
     A = randn((2 .+ (1:6))...);
     @test vmean(A, dims=(4,5,6)) ≈ mean(A, dims=(4,5,6))
