@@ -26,16 +26,16 @@ VectorizedStatistics.partialquicksort!(A, 1, 101, 51)
 
 # Vsort, Float64
 A = rand(100)
-B = vsort(A, multithreaded=false)
+B = VectorizedStatistics.vsort(A, multithreaded=false)
 @test issorted(B)
 A = rand(100)
-B = vsort(A, multithreaded=true)
+B = VectorizedStatistics.vsort(A, multithreaded=true)
 @test issorted(B)
 
 # Vsort, Int64
 A = rand(Int, 100)
-B = vsort(A, multithreaded=false)
+B = VectorizedStatistics.vsort(A, multithreaded=false)
 @test issorted(B)
 A = rand(Int, 100)
-B = vsort(A, multithreaded=true)
+B = VectorizedStatistics.vsort(A, multithreaded=true)
 @test issorted(B)
