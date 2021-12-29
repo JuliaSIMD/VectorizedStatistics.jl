@@ -11,8 +11,8 @@ function sortnans!(A, iₗ=firstindex(A), iᵤ=lastindex(A))
     # Otherwise, swap all NaNs
     i = iₗ
     j = iᵤ
-    N = iᵤ - iₗ + 1
-    @inbounds for n = 1:N-Nₙₐₙ
+    N = iᵤ - iₗ
+    @inbounds for n = 0:N-Nₙₐₙ
         i = iₗ + n
         if A[i] != A[i]
             while A[j] != A[j]

@@ -51,7 +51,7 @@ function vsort!(A; dims=:, multithreaded=:auto)
         _vsort!(A, dims)
     end
 end
-export vsort
+export vsort!
 
 # Sort linearly (reducing along all dimensions)
 function _vsort!(A::AbstractArray, ::Colon)
