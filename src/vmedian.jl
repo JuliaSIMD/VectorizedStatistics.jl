@@ -1,9 +1,19 @@
 """
 ```julia
-vmedian(A; dims, multithreaded=:auto)
+vmedian!(A; dims)
 ```
 Compute the median of all elements in `A`, optionally over dimensions specified by `dims`.
-As `Statistics.median`, but vectorized and (optionally) multithreaded.
+As `Statistics.median!`, but slightly vectorized and supporting the `dims` keyword.
+
+Be aware that, like `Statistics.median!`, this function modifies `A`, sorting or
+partially sorting the contents thereof (specifically, along the dimensions specified
+by `dims`, using either `quicksort!` or `partialquicksort!` around the median
+depending on the size of the array). Do not use this function if you do not want
+the contents of `A` to be rearranged.
+
+Reduction over multiple `dims` is not officially supported, though does work
+(in generally suboptimal time) as long as the dimensions being reduced over are
+all contiguous.
 
 ## Examples
 ```julia
@@ -15,22 +25,25 @@ julia> A = [1 2 3; 4 5 6; 7 8 9]
  4  5  6
  7  8  9
 
-julia> vmedian(A, dims=1)
-# not implemented yet
+ julia> vmedian!(A, dims=1)
+ 1×3 Matrix{Float64}:
+  4.0  5.0  6.0
 
-julia> vmedian(A, dims=2)
-# not implemented yet
-```
-"""
-vmedian(A; dims=:) = _vmedian!(copy(A), dims)
-export vmedian
+ julia> vmedian!(A, dims=2)
+ 3×1 Matrix{Float64}:
+  2.0
+  5.0
+  8.0
 
-"""
-```julia
-vmedian!(A; dims, multithreaded=:auto)
-```
-As `vmedian` but will partially sort `A` around the median (using either
-`quicksort!` or `partialquicksort!` depending on the size of the array).
+ julia> vmedian!(A)
+ 5.0
+
+ julia> A # Note that the array has been sorted
+3×3 Matrix{Int64}:
+ 1  4  7
+ 2  5  8
+ 3  6  9
+ ```
 """
 vmedian!(A; dims=:) = _vmedian!(A, dims)
 export vmedian!
@@ -50,6 +63,7 @@ function _vmedian!(A::AbstractArray{T,N}, dims::Tuple) where {T,N}
 end
 
 # Reduce all the dims!
+_vmedian!(A, ::Tuple{Colon}) = _vmedian!(A, :)
 function _vmedian!(A, ::Colon)
     iₗ, iᵤ = firstindex(A), lastindex(A)
     A, iₗ, iᵤ₋ = sortnans!(A, iₗ, iᵤ)
@@ -77,9 +91,6 @@ function _vmedian!(A, ::Colon)
     end
 end
 
-
-
-# Chris Elrod metaprogramming magic:
 # Generate customized set of loops for a given ndims and a vector
 # `static_dims` of dimensions to reduce over
 function staticdim_median_quote(static_dims::Vector{Int}, N::Int)
