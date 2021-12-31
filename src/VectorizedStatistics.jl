@@ -18,5 +18,6 @@ module VectorizedStatistics
     include("quicksort.jl")
     include("vsort.jl")
     include("vmedian.jl")
+    include("vpctile.jl")
 
 end

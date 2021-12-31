@@ -1,46 +1,50 @@
-# Test sorting functions
-A = rand(100)
+## --- Test sorting functions directly
 
-# SortNaNs
-B, iₗ, iᵤ = VectorizedStatistics.sortnans!(copy(A))
-@test B == A
-@test (iₗ, iᵤ) == (1, 100)
+    A = rand(100)
 
-# Quicksort
-VectorizedStatistics.quicksort!(A)
-sort!(B)
-@test A == B
+    # SortNaNs
+    B, iₗ, iᵤ = VectorizedStatistics.sortnans!(copy(A))
+    @test B == A
+    @test (iₗ, iᵤ) == (1, 100)
 
-# Multithreaded quicksort
-A = rand(100)
-B = copy(A)
-VectorizedStatistics.quicksortt!(A)
-sort!(B)
-@test A == B
+    # Quicksort
+    VectorizedStatistics.quicksort!(A)
+    sort!(B)
+    @test A == B
 
-# Partialsort
-A = rand(101)
-m = median(A)
-VectorizedStatistics.partialquicksort!(A, 1, 101, 51)
-@test A[51] == m
+    # Multithreaded quicksort
+    A = rand(100)
+    B = copy(A)
+    VectorizedStatistics.quicksortt!(A)
+    sort!(B)
+    @test A == B
 
-# Vsort, Float64
-A = rand(100)
-B = VectorizedStatistics.vsort(A, multithreaded=false)
-@test issorted(B)
-A = rand(100)
-B = VectorizedStatistics.vsort(A, multithreaded=true)
-@test issorted(B)
+    # Partialsort
+    A = rand(101)
+    m = median(A)
+    VectorizedStatistics.partialquicksort!(A, 1, 101, 51)
+    @test A[51] == m
 
-# Vsort, Int64
-A = rand(Int, 100)
-B = VectorizedStatistics.vsort(A, multithreaded=false)
-@test issorted(B)
-A = rand(Int, 100)
-B = VectorizedStatistics.vsort(A, multithreaded=true)
-@test issorted(B)
+    # Vsort, Float64
+    A = rand(100)
+    B = VectorizedStatistics.vsort(A, multithreaded=false)
+    @test issorted(B)
+    A = rand(100)
+    B = VectorizedStatistics.vsort(A, multithreaded=true)
+    @test issorted(B)
+
+    # Vsort, Int64
+    A = rand(Int, 100)
+    B = VectorizedStatistics.vsort(A, multithreaded=false)
+    @test issorted(B)
+    A = rand(Int, 100)
+    B = VectorizedStatistics.vsort(A, multithreaded=true)
+    @test issorted(B)
 
 ## --- Test vmedian!
+
+    @test vmedian!(0:10) == 5
+    @test vmedian!(1:10) == 5.5
 
     A = rand(100)
     @test vmedian!(copy(A)) == median(A)
@@ -58,5 +62,28 @@ B = VectorizedStatistics.vsort(A, multithreaded=true)
     @test vmedian!(copy(A), dims=(1,2)) == median(A, dims=(1,2))
     @test vmedian!(copy(A), dims=(2,3)) == median(A, dims=(2,3))
 
+## --- Test vpctile! / vquantile!
+
+    @test vpctile!(0:10, 0) == 0
+    @test vpctile!(0:10, 1) ≈ 0.1
+    @test vpctile!(0:10, 100) == 10
+    @test vpctile!(0:10, 13.582) ≈ 1.3582
+    @test vpctile!(collect(1:10), 50) == 5.5
+
+    A = rand(100)
+    @test vpctile!(copy(A), 50) == median(A)
+
+    A = rand(55,82)
+    @test vpctile!(copy(A), 50) == median(A)
+    @test vpctile!(copy(A), 50, dims=1) == median(A, dims=1)
+    @test vpctile!(copy(A), 50, dims=2) == median(A, dims=2)
+
+    A = rand(10,11,12)
+    @test vpctile!(copy(A), 50) == median(A)
+    @test vpctile!(copy(A), 50, dims=1) == median(A, dims=1)
+    @test vpctile!(copy(A), 50, dims=2) == median(A, dims=2)
+    @test vpctile!(copy(A), 50, dims=3) == median(A, dims=3)
+    @test vpctile!(copy(A), 50, dims=(1,2)) == median(A, dims=(1,2))
+    @test vpctile!(copy(A), 50, dims=(2,3)) == median(A, dims=(2,3))
 
 ## ---
