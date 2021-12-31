@@ -1,4 +1,4 @@
-# Move all NaNs to the end of the array A
+# Move all NaNs to the end of the array `A`
 function sortnans!(A, iₗ=firstindex(A), iᵤ=lastindex(A))
     # Count up NaNs
     Nₙₐₙ = 0
@@ -28,8 +28,8 @@ end
 # For integers, don't need to check for NaNs
 sortnans!(A::AbstractArray{<:Integer}, iₗ=firstindex(A), iᵤ=lastindex(A)) = A, iₗ, iᵤ
 
-# Partialsort based on quickselect
-function partialquicksort!(A::AbstractArray, iₗ=firstindex(A), iᵤ=lastindex(A), k=(iₗ+iᵤ)÷2)
+# Partially sort `A` around the `k`th sorted element and return that element
+function quickselect!(A::AbstractArray, iₗ=firstindex(A), iᵤ=lastindex(A), k=(iₗ+iᵤ)÷2)
     # Pick a pivot for partitioning
     N = iᵤ - iₗ + 1
     A[iₗ], A[k] = A[k], A[iₗ]
@@ -60,9 +60,9 @@ function partialquicksort!(A::AbstractArray, iₗ=firstindex(A), iᵤ=lastindex(
     iₚ = iₗ + Nₗ - 1
     A[iₗ], A[iₚ] = A[iₚ], A[iₗ]
     # Recurse: select from partition containing k
-    (iₗ <= k < iₚ) && partialquicksort!(A, iₗ, iₚ, k)
-    (iₚ < k <= iᵤ) && partialquicksort!(A, iₚ+1, iᵤ, k)
-    return A
+    (iₗ <= k < iₚ) && quickselect!(A, iₗ, iₚ, k)
+    (iₚ < k <= iᵤ) && quickselect!(A, iₚ+1, iᵤ, k)
+    return A[k]
 end
 
 # Check for sortedness, assuming no NaNs
@@ -75,7 +75,7 @@ function issortedrange(A, iₗ, iᵤ)
     return true
 end
 
-# Sort, assuming no NaNs
+# Sort `A`, assuming no NaNs
 function quicksort!(A, iₗ=firstindex(A), iᵤ=lastindex(A))
     if issortedrange(A, iₗ, iᵤ)
         # If already sorted, we're done here
@@ -146,7 +146,7 @@ function quicksort!(A, iₗ=firstindex(A), iᵤ=lastindex(A))
     end
 end
 
-# Multithreaded sort, assuming no NaNs
+# Sort `A`, assuming no NaNs, multithreaded
 function quicksortt!(A, iₗ=firstindex(A), iᵤ=lastindex(A), level=1)
     if issortedrange(A, iₗ, iᵤ)
         # If already sorted, we're done here

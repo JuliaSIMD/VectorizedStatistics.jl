@@ -7,7 +7,7 @@ As `Statistics.median!`, but slightly vectorized and supporting the `dims` keywo
 
 Be aware that, like `Statistics.median!`, this function modifies `A`, sorting or
 partially sorting the contents thereof (specifically, along the dimensions specified
-by `dims`, using either `quicksort!` or `partialquicksort!` around the median
+by `dims`, using either `quicksort!` or `quickselect!` around the median
 depending on the size of the array). Do not use this function if you do not want
 the contents of `A` to be rearranged.
 
@@ -77,15 +77,15 @@ function _vmedian!(A, ::Colon)
         if N < 384
             quicksort!(A, iₗ, iᵤ)
         else
-            partialquicksort!(A, iₗ, iᵤ, i½)
-            partialquicksort!(A, i½+1, iᵤ, i½+1)
+            quickselect!(A, iₗ, iᵤ, i½)
+            quickselect!(A, i½+1, iᵤ, i½+1)
         end
         return (A[i½] + A[i½+1]) / 2
     else
         if N < 192
             quicksort!(A, iₗ, iᵤ)
         else
-            partialquicksort!(A, iₗ, iᵤ, i½)
+            quickselect!(A, iₗ, iᵤ, i½)
         end
         return A[i½] / 1
     end

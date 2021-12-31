@@ -22,7 +22,7 @@
     # Partialsort
     A = rand(101)
     m = median(A)
-    VectorizedStatistics.partialquicksort!(A, 1, 101, 51)
+    VectorizedStatistics.quickselect!(A, 1, 101, 51)
     @test A[51] == m
 
     # Vsort, Float64

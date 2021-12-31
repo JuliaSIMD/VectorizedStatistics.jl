@@ -9,7 +9,7 @@ As `StatsBase.percentile`, but in-place, slightly vectorized, and supporting the
 
 Be aware that, like `Statistics.median!`, this function modifies `A`, sorting or
 partially sorting the contents thereof (specifically, along the dimensions specified
-by `dims`, using either `quicksort!` or `partialquicksort!` depending on the size
+by `dims`, using either `quicksort!` or `quickselect!` depending on the size
 of the array). Do not use this function if you do not want the contents of `A`
 to be rearranged.
 
@@ -47,7 +47,7 @@ julia> A = [1 2 3; 4 5 6; 7 8 9]
  3  6  9
 ```
 """
-vpctile!(A, p::Number; dims=:) = _vquantile!(A, 0.01*p, dims)
+vpctile!(A, p::Number; dims=:) = _vquantile!(A, p/100, dims)
 export vpctile!
 
 
@@ -62,7 +62,7 @@ Similar to `StatsBase.quantile!`, but slightly vectorized, and supporting the `d
 
 Be aware that, like `StatsBase.quantile!`, this function modifies `A`, sorting or
 partially sorting the contents thereof (specifically, along the dimensions specified
-by `dims`, using either `quicksort!` or `partialquicksort!` depending on the size
+by `dims`, using either `quicksort!` or `quickselect!` depending on the size
 of the array). Do not use this function if you do not want the contents of `A`
 to be rearranged.
 
@@ -133,8 +133,8 @@ function _vquantile!(A, q::Real, ::Colon)
     if N₋ < 384
         quicksort!(A, iₗ, iᵤ)
     else
-        partialquicksort!(A, iₗ, iᵤ, iₚ₋)
-        partialquicksort!(A, iₚ₊, iᵤ, iₚ₊)
+        quickselect!(A, iₗ, iᵤ, iₚ₋)
+        quickselect!(A, iₚ₊, iᵤ, iₚ₊)
     end
     f = iₚ - iₚ₋
     return f*A[iₚ₊] + (1-f)*A[iₚ₋]
