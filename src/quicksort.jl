@@ -87,6 +87,31 @@ function quicksort!(A, iₗ=firstindex(A), iᵤ=lastindex(A))
         # If we've gotten here, we know we're not sorted, so reverse elements
         A[iᵤ], A[iₗ] = A[iₗ], A[iᵤ]
         return A
+    elseif N == 3
+        # For N==3, can sort with 3 more comparisons, worst-case
+        iₘ = iₗ + 1
+        a,b,c = A[iₗ], A[iₘ], A[iᵤ]
+        if a > b
+            if b > c
+                # c < b < a
+                A[iₗ], A[iᵤ] = c, a
+            elseif c > a
+                # b < a < c
+                A[iₗ], A[iₘ] = b, a
+            else
+                # b <= c <= a
+                A[iₗ], A[iₘ], A[iᵤ] = b, c, a
+            end
+        else # a <= b
+            if c > a
+                # a < c < b
+                A[iₘ], A[iᵤ] = c, b
+            else
+                # c <= a <= b
+                A[iₗ], A[iₘ], A[iᵤ] = c, a, b
+            end
+        end
+        return A
     else
         # Pick a pivot for partitioning
         pivot = A[iₗ]
@@ -132,6 +157,31 @@ function quicksortt!(A, iₗ=firstindex(A), iᵤ=lastindex(A), level=1)
     if  N == 2
         # If we've gotten here, we know we're not sorted, so reverse elements
         A[iᵤ], A[iₗ] = A[iₗ], A[iᵤ]
+        return A
+    elseif N == 3
+        # For N==3, can sort with 3 more comparisons, worst-case
+        iₘ = iₗ + 1
+        a,b,c = A[iₗ], A[iₘ], A[iᵤ]
+        if a > b
+            if b > c
+                # c < b < a
+                A[iₗ], A[iᵤ] = c, a
+            elseif c > a
+                # b < a < c
+                A[iₗ], A[iₘ] = b, a
+            else
+                # b <= c <= a
+                A[iₗ], A[iₘ], A[iᵤ] = b, c, a
+            end
+        else # a <= b
+            if c > a
+                # a < c < b
+                A[iₘ], A[iᵤ] = c, b
+            else
+                # c <= a <= b
+                A[iₗ], A[iₘ], A[iᵤ] = c, a, b
+            end
+        end
         return A
     else
         # Pick a pivot for partitioning
