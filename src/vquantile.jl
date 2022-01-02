@@ -108,6 +108,7 @@ _vquantile!(A, q::Real, dims::Int) = _vquantile!(A, q, (dims,))
 
 # Reduce some dims
 function _vquantile!(A::AbstractArray{T,N}, q::Real, dims::Tuple) where {T,N}
+    iscontiguous(dims) || error("Only continuous `dims` are currently supported")
     sᵢ = size(A)
     sₒ = ntuple(Val(N)) do d
         ifelse(d ∈ dims, 1, sᵢ[d])

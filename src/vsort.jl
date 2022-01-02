@@ -71,3 +71,13 @@ function _vtsort!(A::AbstractArray, ::Colon)
     # Sort the non-NaN elements
     quicksortt!(A, iₗ, iᵤ)
 end
+
+# Reducing / sorting over noncontiguous dims may be a problem
+function iscontiguous(dims)
+    for i = 2:length(dims)
+        if !(dims[i] == dims[i-1] + 1 || dims[i] == dims[i-1] - 1)
+            return false
+        end
+    end
+    return true
+end
