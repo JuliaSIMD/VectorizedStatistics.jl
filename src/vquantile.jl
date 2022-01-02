@@ -1,6 +1,6 @@
 """
 ```julia
-vpctile!(A, p; dims)
+vpercentile!(A, p; dims)
 ```
 Compute the `p`th percentile (where `p ∈ [0,100]`) of all elements in `A`,
 optionally over dimensions specified by `dims`.
@@ -27,17 +27,17 @@ julia> A = [1 2 3; 4 5 6; 7 8 9]
  4  5  6
  7  8  9
 
- julia> vpctile!(A, 50, dims=1)
+ julia> vpercentile!(A, 50, dims=1)
  1×3 Matrix{Float64}:
   4.0  5.0  6.0
 
- julia> vpctile!(A, 50, dims=2)
+ julia> vpercentile!(A, 50, dims=2)
  3×1 Matrix{Float64}:
   2.0
   5.0
   8.0
 
- julia> vpctile!(A, 50)
+ julia> vpercentile!(A, 50)
  5.0
 
  julia> A # Note that the array has been sorted
@@ -47,8 +47,8 @@ julia> A = [1 2 3; 4 5 6; 7 8 9]
  3  6  9
 ```
 """
-vpctile!(A, p::Number; dims=:) = _vquantile!(A, p/100, dims)
-export vpctile!
+vpercentile!(A, p::Number; dims=:) = _vquantile!(A, p/100, dims)
+export vpercentile!
 
 
 """

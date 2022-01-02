@@ -26,7 +26,7 @@ Fast, [LoopVectorization.jl](https://github.com/JuliaSIMD/LoopVectorization.jl)-
 * `vpercentile!`
 
 #### TODO
-* median, percentile: requires a good SIMD sorting function
+* median, percentile: could be made more efficient with better SIMD sorting
 * Other various summary statistics (mad, aad, etc.?)
 * multithreaded vminimum, vmaximum, vextrema
 
