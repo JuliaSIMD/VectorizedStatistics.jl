@@ -19,6 +19,12 @@ Fast, [LoopVectorization.jl](https://github.com/JuliaSIMD/LoopVectorization.jl)-
 * `vcov`
 * `vcor`
 
+#### Implemented via quicksort/quickselect (some easy steps vectorized), with multidimensional reductions handled by compile-time loop generation
+* `vsort!`
+* `vmedian!`
+* `vquantile!`
+* `vpercentile!`
+
 #### TODO
 * median, percentile: requires a good SIMD sorting function
 * Other various summary statistics (mad, aad, etc.?)
