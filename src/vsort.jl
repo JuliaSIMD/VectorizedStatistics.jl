@@ -45,7 +45,7 @@ julia> vsort!(A)
 ```
 """
 function vsort!(A; dims=:, multithreaded=:auto)
-    if (multithreaded==:auto && length(A) > 16383) || multithreaded==true
+    if (multithreaded===:auto && length(A) > 16383) || multithreaded===true
         _vtsort!(A, dims)
     else
         _vsort!(A, dims)
