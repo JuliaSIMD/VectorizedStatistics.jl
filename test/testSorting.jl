@@ -12,11 +12,20 @@
     sort!(B)
     @test A == B
 
+    A = rand(10_000)
+    B = sort(A)
+    VectorizedStatistics.quicksort!(A)
+    @test A == B
+
     # Multithreaded quicksort
     A = rand(100)
-    B = copy(A)
+    B = sort(A)
     VectorizedStatistics.quicksortt!(A)
-    sort!(B)
+    @test A == B
+
+    A = rand(10_000)
+    B = sort(A)
+    VectorizedStatistics.quicksortt!(A)
     @test A == B
 
     # Partialsort
@@ -24,6 +33,16 @@
     m = median(A)
     VectorizedStatistics.quickselect!(A, 1, 101, 51)
     @test A[51] == m
+
+    # Quicksort of already-sorted arrays
+    @test VectorizedStatistics.quicksort!(collect(1:100)) == 1:100
+    @test VectorizedStatistics.quicksort!(collect(100:-1:1)) == 1:100
+    @test VectorizedStatistics.quicksortt!(collect(1:100)) == 1:100
+    @test VectorizedStatistics.quicksortt!(collect(100:-1:1)) == 1:100
+
+    # Test quicksort of some potentially pathological cases
+    @test VectorizedStatistics.quicksort!(abs.(-50:50)) == sort(abs.(-50:50))
+    @test VectorizedStatistics.quicksortt!(abs.(-50:50)) == sort(abs.(-50:50))
 
     # Vsort, Float64
     A = rand(100)
@@ -47,6 +66,8 @@
     @test vmedian!(1:10) == 5.5
 
     A = rand(100)
+    @test vmedian!(copy(A)) == median(A)
+    A = rand(10_000)
     @test vmedian!(copy(A)) == median(A)
 
     A = rand(55,82)
@@ -72,6 +93,8 @@
 
     A = rand(100)
     @test vpercentile!(copy(A), 50) == median(A)
+    A = rand(10_000)
+    @test vpercentile!(copy(A), 50) == median(A)
 
     A = rand(55,82)
     @test vpercentile!(copy(A), 50) == median(A)
@@ -85,5 +108,9 @@
     @test vpercentile!(copy(A), 50, dims=3) == median(A, dims=3)
     @test vpercentile!(copy(A), 50, dims=(1,2)) == median(A, dims=(1,2))
     @test vpercentile!(copy(A), 50, dims=(2,3)) == median(A, dims=(2,3))
+
+    A = rand(100)
+    @test median(A) == vpercentile!(copy(A), 50) == vquantile!(copy(A), 0.5)
+    @test vpercentile!(copy(A), 50) == vquantile!(copy(A), 0.5)
 
 ## ---
