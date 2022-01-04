@@ -60,6 +60,18 @@
     B = VectorizedStatistics.vsort(A, multithreaded=true)
     @test issorted(B)
 
+    # Vsort, dimensional cases
+    A = rand(100,100)
+    @test vsort!(copy(A), dims=1) == sort(A, dims=1)
+    @test vsort!(copy(A), dims=2) == sort(A, dims=2)
+    @test vsort!(copy(A), dims=3) == A
+
+    A = rand(10,11,12)
+    @test sort(A, dims=1) == vsort!(copy(A), dims=1)
+    @test sort(A, dims=2) == vsort!(copy(A), dims=2)
+    @test sort(A, dims=3) == vsort!(copy(A), dims=3)
+
+
 ## --- Test vmedian!
 
     @test vmedian!(0:10) == 5
