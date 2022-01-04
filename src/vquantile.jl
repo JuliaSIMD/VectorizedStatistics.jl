@@ -13,9 +13,9 @@ by `dims`, using either `quicksort!` or `quickselect!` depending on the size
 of the array). Do not use this function if you do not want the contents of `A`
 to be rearranged.
 
-Reduction over multiple `dims` is not officially supported, though does work
-(in generally suboptimal time) as long as the dimensions being reduced over are
-all contiguous.
+If reducing over multiple `dims`, these dimensions must be contiguous (i.e.
+`dims=(2,3)` but not `dims=(1,3)`). Note also that specifying `dims` other than
+`:` creates `view`s, with some nonzero performance cost.
 
 ## Examples
 ```julia
@@ -66,9 +66,9 @@ by `dims`, using either `quicksort!` or `quickselect!` depending on the size
 of the array). Do not use this function if you do not want the contents of `A`
 to be rearranged.
 
-Reduction over multiple `dims` is not officially supported, though does work
-(in generally suboptimal time) as long as the dimensions being reduced over are
-all contiguous.
+If reducing over multiple `dims`, these dimensions must be contiguous (i.e.
+`dims=(2,3)` but not `dims=(1,3)`). Note also that specifying `dims` other than
+`:` creates `view`s, with some nonzero performance cost.
 
 ## Examples
 ```julia

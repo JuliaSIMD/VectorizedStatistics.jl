@@ -4,7 +4,11 @@
 ```julia
 vsort(A; dims, multithreaded=:auto)
 ```
-Return a copy of the array `A`, optionally along dimensions specified by `dims`.
+Return a sorted copy of the array `A`, optionally along dimensions specified by `dims`.
+
+If sorting over multiple `dims`, these dimensions must be contiguous (i.e.
+`dims=(2,3)` but not `dims=(1,3)`). Note also that specifying `dims` other than
+`:` creates `view`s, with some nonzero performance cost.
 
 See also `vsort!` for a more efficient in-place version.
 
@@ -29,6 +33,10 @@ vsort(A; dims=:, multithreaded=:auto) = vsort!(copy(A), dims=dims, multithreaded
 vsort!(A; dims, multithreaded=:auto)
 ```
 Sort the array `A`, optionally along dimensions specified by `dims`.
+
+If sorting over multiple `dims`, these dimensions must be contiguous (i.e.
+`dims=(2,3)` but not `dims=(1,3)`). Note also that specifying `dims` other than
+`:` creates `view`s, with some nonezero performance cost.
 
 ## Examples
 ```julia
