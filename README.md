@@ -29,7 +29,7 @@ Fast, [LoopVectorization.jl](https://github.com/JuliaSIMD/LoopVectorization.jl)-
 ### Examples and benchmarks
 As of Julia `v1.7.1`, VectorizedStatistics `v0.4.0`
 
-#### `vminimum`/`vmaximum` (implemented by recursive `vreduce`)
+##### `vminimum`/`vmaximum` (implemented by recursive `vreduce`)
 ```julia
 julia> using Statistics, VectorizedStatistics, BenchmarkTools
 
@@ -92,7 +92,7 @@ BenchmarkTools.Trial: 10000 samples with 4 evaluations.
  Memory estimate: 18.89 KiB, allocs estimate: 7.
 ```
 
-#### `vmean`, `vstd`, `vvar`, etc. (implemented by direct loop generation)
+##### `vmean`, `vstd`, `vvar`, etc. (implemented by direct loop generation)
 ```julia
 julia> A = rand(11, 12, 13, 14);
 
@@ -124,7 +124,7 @@ BenchmarkTools.Trial: 10000 samples with 10 evaluations.
  Memory estimate: 272 bytes, allocs estimate: 4.
 ```
 
-#### Sorting-based functions
+##### Sorting-based functions
 ```julia
 julia> A = rand(10_000);
 
@@ -183,7 +183,7 @@ BenchmarkTools.Trial: 10000 samples with 5 evaluations.
  Memory estimate: 0 bytes, allocs estimate: 0.
 ```
 
-### TODO
+#### TODO
 * Median and percentile could be made more efficient with better SIMD sorting
 * Other various summary statistics (mad, aad, etc.?)
 * multithreaded vminimum, vmaximum, vextrema
