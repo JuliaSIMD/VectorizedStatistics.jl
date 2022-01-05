@@ -25,6 +25,8 @@ Fast, [LoopVectorization.jl](https://github.com/JuliaSIMD/LoopVectorization.jl)-
 * `vquantile!`
 * `vpercentile!`
 
+#### See also
+* [NaNStatistics.jl](https://github.com/brenhinkeller/NaNStatistics.jl) for equivalently-vectorized functions that additionally ignore `NaN`s
 
 ### Examples and benchmarks
 As of Julia `v1.7.1`, VectorizedStatistics `v0.4.0`
