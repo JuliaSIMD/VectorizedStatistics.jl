@@ -25,7 +25,7 @@ julia> vmean(A, dims=2)
 ```
 """
 function vmean(A; dims=:, multithreaded=:auto)
-    if (multithreaded==:auto && length(A) > 4095) || multithreaded==true
+    if (multithreaded===:auto && length(A) > 4095) || multithreaded===true
         _vtmean(A, dims)
     else
         _vmean(A, dims)

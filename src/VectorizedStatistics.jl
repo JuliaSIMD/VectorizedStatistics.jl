@@ -14,4 +14,10 @@ module VectorizedStatistics
     include("vstd.jl")
     include("vcov.jl")
 
+    # Sorting-based statistics
+    include("quicksort.jl")
+    include("vsort.jl")
+    include("vmedian.jl")
+    include("vquantile.jl")
+
 end

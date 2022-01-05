@@ -29,7 +29,7 @@ julia> vstd(A, dims=2)
 ```
 """
 function vstd(A; dims=:, mean=nothing, corrected=true, multithreaded=:auto)
-    if (multithreaded==:auto && length(A) > 4095) || multithreaded==true
+    if (multithreaded===:auto && length(A) > 4095) || multithreaded===true
         _vtstd(mean, corrected, A, dims)
     else
         _vstd(mean, corrected, A, dims)
