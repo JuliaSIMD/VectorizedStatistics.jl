@@ -188,7 +188,7 @@ function branches_sum_quote(N::Int, M::Int, D)
 end
 
 # Efficient @generated in-place sum
-@generated function _vsum!(B::AbstractArray{Tₒ,N}, A::AbstractArray{T,N}, dims::D) where {Tₒ,T,N,M,D<:Tuple{Vararg{Integer,M}}}
+@generated function _vsum!(B::AbstractArray{Tₒ,N}, A::AbstractArray{T,N}, dims::D) where {Tₒ,T,N,M,D<:Tuple{Vararg{IntOrStaticInt,M}}}
   branches_sum_quote(N, M, D)
 end
 @generated function _vsum!(B::AbstractArray{Tₒ,N}, A::AbstractArray{T,N}, dims::Tuple{}) where {Tₒ,T,N}
@@ -348,7 +348,7 @@ function branches_tsum_quote(N::Int, M::Int, D)
 end
 
 # Efficient @generated in-place sum
-@generated function _vtsum!(B::AbstractArray{Tₒ,N}, A::AbstractArray{T,N}, dims::D) where {Tₒ,T,N,M,D<:Tuple{Vararg{Integer,M}}}
+@generated function _vtsum!(B::AbstractArray{Tₒ,N}, A::AbstractArray{T,N}, dims::D) where {Tₒ,T,N,M,D<:Tuple{Vararg{IntOrStaticInt,M}}}
   branches_tsum_quote(N, M, D)
 end
 @generated function _vtsum!(B::AbstractArray{Tₒ,N}, A::AbstractArray{T,N}, dims::Tuple{}) where {Tₒ,T,N}

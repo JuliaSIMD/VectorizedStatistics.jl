@@ -192,7 +192,7 @@ function branches_mean_quote(N::Int, M::Int, D)
 end
 
 # Efficient @generated in-place mean
-@generated function _vmean!(B::AbstractArray{Tₒ,N}, A::AbstractArray{T,N}, dims::D) where {Tₒ,T,N,M,D<:Tuple{Vararg{Integer,M}}}
+@generated function _vmean!(B::AbstractArray{Tₒ,N}, A::AbstractArray{T,N}, dims::D) where {Tₒ,T,N,M,D<:Tuple{Vararg{IntOrStaticInt,M}}}
   branches_mean_quote(N, M, D)
 end
 @generated function _vmean!(B::AbstractArray{Tₒ,N}, A::AbstractArray{T,N}, dims::Tuple{}) where {Tₒ,T,N}
@@ -355,7 +355,7 @@ function branches_tmean_quote(N::Int, M::Int, D)
 end
 
 # Efficient @generated in-place mean
-@generated function _vtmean!(B::AbstractArray{Tₒ,N}, A::AbstractArray{T,N}, dims::D) where {Tₒ,T,N,M,D<:Tuple{Vararg{Integer,M}}}
+@generated function _vtmean!(B::AbstractArray{Tₒ,N}, A::AbstractArray{T,N}, dims::D) where {Tₒ,T,N,M,D<:Tuple{Vararg{IntOrStaticInt,M}}}
   branches_tmean_quote(N, M, D)
 end
 @generated function _vtmean!(B::AbstractArray{Tₒ,N}, A::AbstractArray{T,N}, dims::Tuple{}) where {Tₒ,T,N}

@@ -199,7 +199,7 @@ function branches_sort_quote(N::Int, M::Int, D)
 end
 
 # Efficient @generated in-place sort
-@generated function __vsort!(A::AbstractArray{T,N}, dims::D) where {T,N,M,D<:Tuple{Vararg{Integer,M}}}
+@generated function __vsort!(A::AbstractArray{T,N}, dims::D) where {T,N,M,D<:Tuple{Vararg{IntOrStaticInt,M}}}
   branches_sort_quote(N, M, D)
 end
 @generated function __vsort!(A::AbstractArray{T,N}, dims::Tuple{}) where {T,N}

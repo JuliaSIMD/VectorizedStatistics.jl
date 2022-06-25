@@ -209,7 +209,7 @@ function branches_var_quote(N::Int, M::Int, D)
 end
 
 # Efficient @generated in-place var
-@generated function _vvar!(B::AbstractArray{Tₒ,N}, corrected::Bool, A::AbstractArray{T,N}, dims::D) where {Tₒ,T,N,M,D<:Tuple{Vararg{Integer,M}}}
+@generated function _vvar!(B::AbstractArray{Tₒ,N}, corrected::Bool, A::AbstractArray{T,N}, dims::D) where {Tₒ,T,N,M,D<:Tuple{Vararg{IntOrStaticInt,M}}}
   branches_var_quote(N, M, D)
 end
 @generated function _vvar!(B::AbstractArray{Tₒ,N}, corrected::Bool, A::AbstractArray{T,N}, dims::Tuple{}) where {Tₒ,T,N}
@@ -388,7 +388,7 @@ function branches_tvar_quote(N::Int, M::Int, D)
 end
 
 # Efficient @generated in-place var
-@generated function _vtvar!(B::AbstractArray{Tₒ,N}, corrected::Bool, A::AbstractArray{T,N}, dims::D) where {Tₒ,T,N,M,D<:Tuple{Vararg{Integer,M}}}
+@generated function _vtvar!(B::AbstractArray{Tₒ,N}, corrected::Bool, A::AbstractArray{T,N}, dims::D) where {Tₒ,T,N,M,D<:Tuple{Vararg{IntOrStaticInt,M}}}
   branches_tvar_quote(N, M, D)
 end
 @generated function _vtvar!(B::AbstractArray{Tₒ,N}, corrected::Bool, A::AbstractArray{T,N}, dims::Tuple{}) where {Tₒ,T,N}
