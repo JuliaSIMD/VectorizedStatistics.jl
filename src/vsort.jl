@@ -30,9 +30,14 @@ vsort(A; dims=:, multithreaded=:auto) = vsort!(copy(A), dims=dims, multithreaded
 
 """
 ```julia
-vsort!(A; dims, multithreaded=:auto)
+vsort!([I], A; dims, multithreaded=:auto)
 ```
 Sort the array `A`, optionally along dimensions specified by `dims`.
+
+If the optional argument `I` is supplied, it will be sorted following the
+same permuation as `A`. For example, if `I = collect(1:length(A))`, then
+after calling `vsort!(I, A)`, `A` will be sorted and `I` will be equal to
+`sortperm(A)`
 
 If sorting over multiple `dims`, these dimensions must be contiguous (i.e.
 `dims=(2,3)` but not `dims=(1,3)`). Note also that specifying `dims` other than
@@ -59,6 +64,14 @@ function vsort!(A; dims=:, multithreaded=:auto)
         _vsort!(A, dims)
     end
 end
+function vsort!(I, A; dims=:, multithreaded=:auto)
+    @assert eachindex(I) === eachindex(A)
+    if (multithreaded===:auto && length(A) > 16383) || multithreaded===true
+        _vtsort!(I, A, dims)
+    else
+        _vsort!(I, A, dims)
+    end
+end
 export vsort!
 
 # Sort linearly (reducing along all dimensions)
@@ -67,6 +80,13 @@ function _vsort!(A::AbstractArray, ::Colon)
     A, iₗ, iᵤ = sortnans!(A)
     # Sort the non-NaN elements
     quicksort!(A, iₗ, iᵤ)
+end
+function _vsort!(I, A::AbstractArray, ::Colon)
+    @assert eachindex(I) === eachindex(A)
+    # IF there are NaNs, move them all to the end of the array
+    I, A, iₗ, iᵤ = sortnans!(I, A)
+    # Sort the non-NaN elements
+    quicksort!(I, A, iₗ, iᵤ)
 end
 
 
@@ -79,6 +99,13 @@ function _vtsort!(A::AbstractArray, ::Colon)
     # Sort the non-NaN elements
     quicksortt!(A, iₗ, iᵤ)
 end
+function _vtsort!(I, A::AbstractArray, ::Colon)
+    # IF there are NaNs, move them all to the end of the array
+    I, A, iₗ, iᵤ = sortnans!(I, A)
+    # Sort the non-NaN elements
+    quicksortt!(I, A, iₗ, iᵤ)
+end
+
 
 # Fall back to singlethreaded for multidimensional cases
 _vtsort!(A::AbstractArray, dims) = _vsort!(A::AbstractArray, dims)
