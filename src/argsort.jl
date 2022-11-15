@@ -49,7 +49,7 @@ function quicksort!(I::AbstractArray, A::AbstractArray, iₗ::Int=firstindex(A),
         if a <= b
             if a <= c
                 A[iₘ], A[iᵤ] = c, b             # a ≤ c ≤ b
-                I[iₘ], I[iᵤ] = A[iᵤ], A[iₘ]
+                I[iₘ], I[iᵤ] = I[iᵤ], I[iₘ]
             else
                 A[iₗ], A[iₘ], A[iᵤ] = c, a, b   # c ≤ a ≤ b
                 I[iₗ], I[iₘ], I[iᵤ] = I[iᵤ], I[iₗ], I[iₘ]
@@ -122,7 +122,7 @@ function quicksortt!(I::AbstractArray, A::AbstractArray, iₗ::Int=firstindex(A)
         if a <= b
             if a <= c
                 A[iₘ], A[iᵤ] = c, b             # a ≤ c ≤ b
-                I[iₘ], I[iᵤ] = A[iᵤ], A[iₘ]
+                I[iₘ], I[iᵤ] = I[iᵤ], I[iₘ]
             else
                 A[iₗ], A[iₘ], A[iᵤ] = c, a, b   # c ≤ a ≤ b
                 I[iₗ], I[iₘ], I[iᵤ] = I[iᵤ], I[iₗ], I[iₘ]
