@@ -9,24 +9,40 @@
 
     # Quicksort
     VectorizedStatistics.quicksort!(A)
-    sort!(B)
-    @test A == B
+    a = sort(A)
+    @test A == a
 
     A = rand(10_000)
-    B = sort(A)
+    a = sort(A)
     VectorizedStatistics.quicksort!(A)
-    @test A == B
+    @test A == a
+
+    A = rand(10_000)
+    a = sort(A)
+    I = collect(1:10_000)
+    i = sortperm(A)
+    VectorizedStatistics.quicksort!(I, A)
+    @test A == a
+    @test I == i
 
     # Multithreaded quicksort
     A = rand(100)
-    B = sort(A)
+    a = sort(A)
     VectorizedStatistics.quicksortt!(A)
-    @test A == B
+    @test A == a
 
     A = rand(10_000)
-    B = sort(A)
+    a = sort(A)
     VectorizedStatistics.quicksortt!(A)
-    @test A == B
+    @test A == a
+
+    A = rand(10_000)
+    a = sort(A)
+    I = collect(1:10_000)
+    i = sortperm(A)
+    VectorizedStatistics.quicksortt!(I, A)
+    @test A == a
+    @test I == i
 
     # Partialsort
     A = rand(101)
@@ -51,6 +67,10 @@
     A = rand(100)
     B = VectorizedStatistics.vsort(A, multithreaded=true)
     @test issorted(B)
+    Ix = sortperm(A)
+    I = collect(1:length(A))
+    vsort!(I, A)
+    @test Ix == I
 
     # Vsort, Int64
     A = rand(Int, 100)
@@ -59,6 +79,10 @@
     A = rand(Int, 100)
     B = VectorizedStatistics.vsort(A, multithreaded=true)
     @test issorted(B)
+    Ix = sortperm(A)
+    I = collect(1:length(A))
+    vsort!(I, A)
+    @test Ix == I
 
     # Vsort, dimensional cases
     A = rand(100,100)
