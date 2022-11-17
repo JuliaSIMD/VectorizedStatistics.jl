@@ -1,7 +1,7 @@
 name = "VectorizedStatistics"
 uuid = "3b853605-1c98-4422-8364-4bd93ee0529e"
 authors = ["C. Brenhin Keller", "Chris Elrod"]
-version = "0.4.5"
+version = "0.4.6"
 
 [deps]
 LoopVectorization = "bdcacae8-1622-11e9-2a5c-532679323890"
@@ -9,7 +9,7 @@ Static = "aedffcd0-7271-4cad-89d0-dc628f76c6d3"
 
 [compat]
 LoopVectorization = "0.12.113"
-Static = "0.2, 0.3, 0.4, 0.5, 0.6, 0.7"
+Static = "0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8"
 julia = "1.5"
 
 [extras]
