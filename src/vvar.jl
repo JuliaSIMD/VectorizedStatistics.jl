@@ -28,7 +28,7 @@ julia> vvar(A, dims=2)
  0.5
 ```
 """
-function vvar(A; dims=:, mean=nothing, corrected=true, multithreaded=:auto)
+function vvar(A; dims=:, mean=nothing, corrected=true, multithreaded=false)
     if (multithreaded===:auto && length(A) > 4095) || multithreaded===true
         _vtvar(mean, corrected, A, dims)
     else

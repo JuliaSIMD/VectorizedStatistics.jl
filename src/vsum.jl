@@ -1,6 +1,6 @@
 """
 ```julia
-vsum(A; dims, multithreaded=:auto)
+vsum(A; dims, multithreaded=false)
 ```
 Summate the values contained in `A`, optionally over dimensions specified by `dims`.
 As `Base.sum`, but vectorized and (optionally) multithreaded.
@@ -24,7 +24,7 @@ julia> vsum(A, dims=2)
  7
 ```
 """
-function vsum(A; dims=:, multithreaded=:auto)
+function vsum(A; dims=:, multithreaded=false)
     if (multithreaded===:auto && length(A) > 4095) || multithreaded===true
         _vtsum(A, dims)
     else

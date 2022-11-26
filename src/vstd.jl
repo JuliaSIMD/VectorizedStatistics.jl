@@ -1,6 +1,6 @@
 """
 ```julia
-vstd(A; dims=:, mean=nothing, corrected=true, multithreaded=:auto)
+vstd(A; dims=:, mean=nothing, corrected=true, multithreaded=false)
 ```
 Compute the variance of all elements in `A`, optionally over dimensions specified by `dims`.
 As `Statistics.var`, but vectorized and (optionally) multithreaded.
@@ -28,7 +28,7 @@ julia> vstd(A, dims=2)
  0.7071067811865476
 ```
 """
-function vstd(A; dims=:, mean=nothing, corrected=true, multithreaded=:auto)
+function vstd(A; dims=:, mean=nothing, corrected=true, multithreaded=false)
     if (multithreaded===:auto && length(A) > 4095) || multithreaded===true
         _vtstd(mean, corrected, A, dims)
     else

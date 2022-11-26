@@ -2,7 +2,7 @@
 
 """
 ```julia
-vsort(A; dims, multithreaded=:auto)
+vsort(A; dims, multithreaded=false)
 ```
 Return a sorted copy of the array `A`, optionally along dimensions specified by `dims`.
 
@@ -25,12 +25,12 @@ julia> vsort(A)
  3
  4
 """
-vsort(A; dims=:, multithreaded=:auto) = vsort!(copy(A), dims=dims, multithreaded=multithreaded)
+vsort(A; dims=:, multithreaded=false) = vsort!(copy(A), dims=dims, multithreaded=multithreaded)
 
 
 """
 ```julia
-vsort!([I], A; dims, multithreaded=:auto)
+vsort!([I], A; dims, multithreaded=false)
 ```
 Sort the array `A`, optionally along dimensions specified by `dims`.
 
@@ -57,14 +57,14 @@ julia> vsort!(A)
  4
 ```
 """
-function vsort!(A; dims=:, multithreaded=:auto)
+function vsort!(A; dims=:, multithreaded=false)
     if (multithreaded===:auto && length(A) > 16383) || multithreaded===true
         _vtsort!(A, dims)
     else
         _vsort!(A, dims)
     end
 end
-function vsort!(I, A; dims=:, multithreaded=:auto)
+function vsort!(I, A; dims=:, multithreaded=false)
     @assert eachindex(I) === eachindex(A)
     if (multithreaded===:auto && length(A) > 16383) || multithreaded===true
         _vtsort!(I, A, dims)
@@ -81,6 +81,7 @@ function _vsort!(A::AbstractArray, ::Colon)
     # Sort the non-NaN elements
     quicksort!(A, iₗ, iᵤ)
 end
+# Also permute `I` via the same permutation that sorts `A`
 function _vsort!(I, A::AbstractArray, ::Colon)
     @assert eachindex(I) === eachindex(A)
     # IF there are NaNs, move them all to the end of the array
@@ -88,7 +89,6 @@ function _vsort!(I, A::AbstractArray, ::Colon)
     # Sort the non-NaN elements
     quicksort!(I, A, iₗ, iᵤ)
 end
-
 
 ## --- as above, but multithreaded
 

@@ -1,6 +1,6 @@
 """
 ```julia
-vmean(A; dims, multithreaded=:auto)
+vmean(A; dims, multithreaded=false)
 ```
 Compute the mean of all elements in `A`, optionally over dimensions specified by `dims`.
 As `Statistics.mean`, but vectorized and (optionally) multithreaded.
@@ -24,7 +24,7 @@ julia> vmean(A, dims=2)
  3.5
 ```
 """
-function vmean(A; dims=:, multithreaded=:auto)
+function vmean(A; dims=:, multithreaded=false)
     if (multithreaded===:auto && length(A) > 4095) || multithreaded===true
         _vtmean(A, dims)
     else

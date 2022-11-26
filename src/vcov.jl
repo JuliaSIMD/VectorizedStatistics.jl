@@ -24,7 +24,7 @@ end
 
 """
 ```julia
-vcov(x::AbstractVector, y::AbstractVector; corrected::Bool=true, multithreaded=:auto)
+vcov(x::AbstractVector, y::AbstractVector; corrected::Bool=true, multithreaded=false)
 ```
 Compute the covariance between the vectors `x` and `y`.
 As `Statistics.cov`, but vectorized and (optionally) multithreaded.
@@ -32,7 +32,7 @@ As `Statistics.cov`, but vectorized and (optionally) multithreaded.
 If `corrected` is `true` as is the default, _Bessel's correction_ will be applied,
 such that the sum is scaled by `n-1` rather than `n`, where `n = length(x)`.
 """
-function vcov(x::AbstractVector, y::AbstractVector; corrected::Bool=true, multithreaded=:auto)
+function vcov(x::AbstractVector, y::AbstractVector; corrected::Bool=true, multithreaded=false)
     # Check lengths
     nᵪ = length(x)
     nᵧ = length(y)
@@ -52,7 +52,7 @@ end
 
 """
 ```julia
-vcov(X::AbstractMatrix; dims::Int=1, corrected::Bool=true, multithreaded=:auto)
+vcov(X::AbstractMatrix; dims::Int=1, corrected::Bool=true, multithreaded=false)
 ```
 Compute the covariance matrix of the matrix `X`, along dimension `dims`.
 As `Statistics.cov`, but vectorized and (optionally) multithreaded.
@@ -60,7 +60,7 @@ As `Statistics.cov`, but vectorized and (optionally) multithreaded.
 If `corrected` is `true` as is the default, _Bessel's correction_ will be applied,
 such that the sum is scaled by `n-1` rather than `n`, where `n = length(x)`.
 """
-function vcov(X::AbstractMatrix; dims::Int=1, corrected::Bool=true, multithreaded=:auto)
+function vcov(X::AbstractMatrix; dims::Int=1, corrected::Bool=true, multithreaded=false)
     if (multithreaded===:auto && length(X) > 4095) || multithreaded===true
         _vtcov(X, dims, corrected)
     else
@@ -143,14 +143,14 @@ end
 
 """
 ```julia
-vcor(x::AbstractVector, y::AbstractVector, multithreaded=:auto)
+vcor(x::AbstractVector, y::AbstractVector, multithreaded=false)
 ```
 Compute the (Pearson's product-moment) correlation between the vectors `x` and `y`.
 As `Statistics.cor`, but vectorized and (optionally) multithreaded.
 
 Equivalent to `cov(x,y) / (std(x) * std(y))`.
 """
-function vcor(x::AbstractVector, y::AbstractVector; corrected::Bool=true, multithreaded=:auto)
+function vcor(x::AbstractVector, y::AbstractVector; corrected::Bool=true, multithreaded=false)
     # Check lengths
     nᵪ = length(x)
     nᵧ = length(y)
@@ -176,13 +176,13 @@ end
 
 """
 ```julia
-vcor(X::AbstractMatrix; dims::Int=1, multithreaded=:auto)
+vcor(X::AbstractMatrix; dims::Int=1, multithreaded=false)
 ```
 Compute the (Pearson's product-moment) correlation matrix of the matrix `X`,
 along dimension `dims`. As `Statistics.cor`, but vectorized and (optionally)
 multithreaded.
 """
-function vcor(X::AbstractMatrix; dims::Int=1, corrected::Bool=true, multithreaded=:auto)
+function vcor(X::AbstractMatrix; dims::Int=1, corrected::Bool=true, multithreaded=false)
     if (multithreaded===:auto && length(X) > 4095) || multithreaded===true
         _vtcor(X, dims, corrected)
     else
