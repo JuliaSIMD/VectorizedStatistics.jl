@@ -24,34 +24,30 @@ julia> vsum(A, dims=2)
  7
 ```
 """
-function vsum(A; dims=:, multithreaded=false)
-    if (multithreaded===:auto && length(A) > 4095) || multithreaded===true
-        _vtsum(A, dims)
-    else
-        _vsum(A, dims)
-    end
-end
-vtsum(A; dims=:) = _vtsum(A, dims)
+vsum(A; dims=:, multithreaded=False()) = _vsum(A, dims, multithreaded)
 export vsum
 
+_vsum(A, dims, multithreaded::Symbol) = _vsum(A, dims, (multithreaded===:auto && length(A) > 4095) ? True() : False())
+_vsum(A, dims, multithreaded::Bool) = _vsum(A, dims, static(multithreaded))
 
-## Singlethreaded implementation
 # Reduce one dim
-_vsum(A, dims::Int) = _vsum(A, (dims,))
+_vsum(A, dims::Int, multithreaded::StaticBool) = _vsum(A, (dims,), multithreaded)
 
 # Reduce some dims
-function _vsum(A::AbstractArray{T,N}, dims::Tuple) where {T,N}
+function _vsum(A::AbstractArray{T,N}, dims::Tuple, multithreaded::StaticBool) where {T,N}
     sᵢ = size(A)
     sₒ = ntuple(Val(N)) do d
         ifelse(d ∈ dims, 1, sᵢ[d])
     end
     Tₒ = Base.promote_op(+, T, Int)
     B = similar(A, Tₒ, sₒ)
-    _vsum!(B, A, dims)
+    _vsum!(B, A, dims, multithreaded)
 end
 
+## Singlethreaded implementation
+
 # Reduce all the dims!
-function _vsum(A, ::Colon)
+function _vsum(A, ::Colon,  multithreaded::False)
     # Promote type of accumulator to avoid overflow
     Tₒ = Base.promote_op(+, eltype(A), Int)
     Σ = zero(Tₒ)
@@ -61,11 +57,10 @@ function _vsum(A, ::Colon)
     return Σ
 end
 
-
 # Chris Elrod metaprogramming magic:
 # Generate customized set of loops for a given ndims and a vector
 # `static_dims` of dimensions to reduce over
-function staticdim_sum_quote(static_dims::Vector{Int}, N::Int)
+function staticdim_sum_quote(static_dims::Vector{Int}, N::Int, multithreaded::Type{False})
   M = length(static_dims)
   # `static_dims` now contains every dim we're taking the sum over.
   Bᵥ = Expr(:call, :view, :B)
@@ -144,74 +139,10 @@ function staticdim_sum_quote(static_dims::Vector{Int}, N::Int)
   end
 end
 
-# Chris Elrod metaprogramming magic:
-# Turn non-static integers in `dims` tuple into `StaticInt`s
-# so we can construct `static_dims` vector within @generated code
-function branches_sum_quote(N::Int, M::Int, D)
-  static_dims = Int[]
-  for m ∈ 1:M
-    param = D.parameters[m]
-    if param <: StaticInt
-      new_dim = _dim(param)::Int
-      @assert new_dim ∉ static_dims
-      push!(static_dims, new_dim)
-    else
-      t = Expr(:tuple)
-      for n ∈ static_dims
-        push!(t.args, :(StaticInt{$n}()))
-      end
-      q = Expr(:block, :(dimm = dims[$m]))
-      qold = q
-      ifsym = :if
-      for n ∈ 1:N
-        n ∈ static_dims && continue
-        tc = copy(t)
-        push!(tc.args, :(StaticInt{$n}()))
-        qnew = Expr(ifsym, :(dimm == $n), :(return _vsum!(B, A, $tc)))
-        for r ∈ m+1:M
-          push!(tc.args, :(dims[$r]))
-        end
-        push!(qold.args, qnew)
-        qold = qnew
-        ifsym = :elseif
-      end
-      # Else, if dimm ∉ 1:N, drop it from list and continue
-      tc = copy(t)
-      for r ∈ m+1:M
-        push!(tc.args, :(dims[$r]))
-      end
-      push!(qold.args, Expr(:block, :(return _vsum!(B, A, $tc))))
-      return q
-    end
-  end
-  return staticdim_sum_quote(static_dims, N)
-end
-
-# Efficient @generated in-place sum
-@generated function _vsum!(B::AbstractArray{Tₒ,N}, A::AbstractArray{T,N}, dims::D) where {Tₒ,T,N,M,D<:Tuple{Vararg{IntOrStaticInt,M}}}
-  branches_sum_quote(N, M, D)
-end
-@generated function _vsum!(B::AbstractArray{Tₒ,N}, A::AbstractArray{T,N}, dims::Tuple{}) where {Tₒ,T,N}
-  :(copyto!(B, A); return B)
-end
-
 ## As above, but multithreaded
-# Reduce one dim
-_vtsum(A, dims::Int) = _vtsum(A, (dims,))
-
-# Reduce some dims
-function _vtsum(A::AbstractArray{T,N}, dims::Tuple) where {T,N}
-    sᵢ = size(A)
-    sₒ = ntuple(Val(N)) do d
-        ifelse(d ∈ dims, 1, sᵢ[d])
-    end
-    Tₒ = Base.promote_op(+, T, Int)
-    B = similar(A, Tₒ, sₒ)
-    _vtsum!(B, A, dims)
-end
 
 # Reduce all the dims!
-function _vtsum(A, ::Colon)
+function _vsum(A, ::Colon, multithreaded::True)
     # Promote type of accumulator to avoid overflow
     Tₒ = Base.promote_op(+, eltype(A), Int)
     Σ = zero(Tₒ)
@@ -225,7 +156,7 @@ end
 # Chris Elrod metaprogramming magic:
 # Generate customized set of loops for a given ndims and a vector
 # `static_dims` of dimensions to reduce over
-function staticdim_tsum_quote(static_dims::Vector{Int}, N::Int)
+function staticdim_sum_quote(static_dims::Vector{Int}, N::Int, multithreaded::Type{True})
   M = length(static_dims)
   # `static_dims` now contains every dim we're taking the sum over.
   Bᵥ = Expr(:call, :view, :B)
@@ -304,10 +235,12 @@ function staticdim_tsum_quote(static_dims::Vector{Int}, N::Int)
   end
 end
 
+## @generated functions to handle all the possible branches
+
 # Chris Elrod metaprogramming magic:
 # Turn non-static integers in `dims` tuple into `StaticInt`s
 # so we can construct `static_dims` vector within @generated code
-function branches_tsum_quote(N::Int, M::Int, D)
+function branches_sum_quote(N::Int, M::Int, D, multithreaded)
   static_dims = Int[]
   for m ∈ 1:M
     param = D.parameters[m]
@@ -327,7 +260,7 @@ function branches_tsum_quote(N::Int, M::Int, D)
         n ∈ static_dims && continue
         tc = copy(t)
         push!(tc.args, :(StaticInt{$n}()))
-        qnew = Expr(ifsym, :(dimm == $n), :(return _vtsum!(B, A, $tc)))
+        qnew = Expr(ifsym, :(dimm == $n), :(return _vsum!(B, A, $tc, multithreaded)))
         for r ∈ m+1:M
           push!(tc.args, :(dims[$r]))
         end
@@ -340,18 +273,20 @@ function branches_tsum_quote(N::Int, M::Int, D)
       for r ∈ m+1:M
         push!(tc.args, :(dims[$r]))
       end
-      push!(qold.args, Expr(:block, :(return _vtmean!(B, A, $tc))))
+      push!(qold.args, Expr(:block, :(return _vsum!(B, A, $tc, multithreaded))))
       return q
     end
   end
-  return staticdim_tsum_quote(static_dims, N)
+  return staticdim_sum_quote(static_dims, N, multithreaded)
 end
 
 # Efficient @generated in-place sum
-@generated function _vtsum!(B::AbstractArray{Tₒ,N}, A::AbstractArray{T,N}, dims::D) where {Tₒ,T,N,M,D<:Tuple{Vararg{IntOrStaticInt,M}}}
-  branches_tsum_quote(N, M, D)
+@generated function _vsum!(B::AbstractArray{Tₒ,N}, A::AbstractArray{T,N}, dims::D, multithreaded) where {Tₒ,T,N,M,D<:Tuple{Vararg{IntOrStaticInt,M}}}
+  branches_sum_quote(N, M, D, multithreaded)
 end
-@generated function _vtsum!(B::AbstractArray{Tₒ,N}, A::AbstractArray{T,N}, dims::Tuple{}) where {Tₒ,T,N}
+@generated function _vsum!(B::AbstractArray{Tₒ,N}, A::AbstractArray{T,N}, dims::Tuple{}, multithreaded) where {Tₒ,T,N}
   :(copyto!(B, A); return B)
 end
+
+
 ##

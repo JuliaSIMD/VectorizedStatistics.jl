@@ -25,7 +25,7 @@ julia> vsort(A)
  3
  4
 """
-vsort(A; dims=:, multithreaded=false) = vsort!(copy(A), dims=dims, multithreaded=multithreaded)
+vsort(A; dims=:, multithreaded=False()) = vsort!(copy(A); dims, multithreaded)
 
 
 """
@@ -57,32 +57,27 @@ julia> vsort!(A)
  4
 ```
 """
-function vsort!(A; dims=:, multithreaded=false)
-    if (multithreaded===:auto && length(A) > 16383) || multithreaded===true
-        _vtsort!(A, dims)
-    else
-        _vsort!(A, dims)
-    end
-end
-function vsort!(I, A; dims=:, multithreaded=false)
+vsort!(A; dims=:, multithreaded=false) = _vsort!(A, dims, multithreaded)
+function vsort!(I, A; dims=:, multithreaded=False())
     @assert eachindex(I) === eachindex(A)
-    if (multithreaded===:auto && length(A) > 16383) || multithreaded===true
-        _vtsort!(I, A, dims)
-    else
-        _vsort!(I, A, dims)
-    end
+    _vsort!(I, A, dims, multithreaded)
 end
 export vsort!
 
+_vsort!(A, dims, multithreaded::Symbol) = _vsort!(A, dims, (multithreaded===:auto && length(A) > 16383) ? True() : False())
+_vsort!(A, dims, multithreaded::Bool) = _vsort!(A, dims, static(multithreaded))
+_vsort!(I, A, dims, multithreaded::Symbol) = _vsort!(I, A, dims, (multithreaded===:auto && length(A) > 16383) ? True() : False())
+_vsort!(I, A, dims, multithreaded::Bool) = _vsort!(I, A, dims, static(multithreaded))
+
 # Sort linearly (reducing along all dimensions)
-function _vsort!(A::AbstractArray, ::Colon)
+function _vsort!(A::AbstractArray, ::Colon, ::False)
     # IF there are NaNs, move them all to the end of the array
     A, iₗ, iᵤ = sortnans!(A)
     # Sort the non-NaN elements
     quicksort!(A, iₗ, iᵤ)
 end
 # Also permute `I` via the same permutation that sorts `A`
-function _vsort!(I, A::AbstractArray, ::Colon)
+function _vsort!(I, A::AbstractArray, ::Colon, ::False)
     @assert eachindex(I) === eachindex(A)
     # IF there are NaNs, move them all to the end of the array
     I, A, iₗ, iᵤ = sortnans!(I, A)
@@ -93,22 +88,18 @@ end
 ## --- as above, but multithreaded
 
 # Sort linearly (reducing along all dimensions)
-function _vtsort!(A::AbstractArray, ::Colon)
+function _vsort!(A::AbstractArray, ::Colon, ::True)
     # IF there are NaNs, move them all to the end of the array
     A, iₗ, iᵤ = sortnans!(A)
     # Sort the non-NaN elements
     quicksortt!(A, iₗ, iᵤ)
 end
-function _vtsort!(I, A::AbstractArray, ::Colon)
+function _vsort!(I, A::AbstractArray, ::Colon, ::True)
     # IF there are NaNs, move them all to the end of the array
     I, A, iₗ, iᵤ = sortnans!(I, A)
     # Sort the non-NaN elements
     quicksortt!(I, A, iₗ, iᵤ)
 end
-
-
-# Fall back to singlethreaded for multidimensional cases
-_vtsort!(A::AbstractArray, dims) = _vsort!(A::AbstractArray, dims)
 
 ## -- multidimensional cases (singlethreaded only)
 
@@ -123,12 +114,12 @@ function iscontiguous(dims)
 end
 
 # Sort one dim
-_vsort!(A, dims::Int) = _vsort!(A, (dims,))
+_vsort!(A, dims::Int, multithreaded::StaticBool) = _vsort!(A, (dims,), multithreaded)
 
 # Sort some dims
-function _vsort!(A::AbstractArray{T,N}, dims::Tuple) where {T,N}
+function _vsort!(A::AbstractArray{T,N}, dims::Tuple, multithreaded) where {T,N}
     iscontiguous(dims) || error("Only continuous `dims` are supported")
-    __vsort!(A, dims)
+    __vsort!(A, dims, multithreaded)
 end
 
 # Generate customized set of loops for a given ndims and a vector
@@ -168,7 +159,7 @@ function staticdim_sort_quote(static_dims::Vector{Int}, N::Int)
     rblock = block
     # Push more things here if you want them at the beginning of the reduction loop
     push!(rblock.args, :(Aᵥ = $Aᵥ))
-    push!(rblock.args, :(_vsort!(Aᵥ, :)))
+    push!(rblock.args, :(_vsort!(Aᵥ, :, multithreaded)))
     # Put it all together
     return quote
       @inbounds $loops
@@ -176,7 +167,7 @@ function staticdim_sort_quote(static_dims::Vector{Int}, N::Int)
     end
   else
     return quote
-      _vsort!(A, :)
+      _vsort!(A, :, multithreaded)
       return A
     end
   end
@@ -205,7 +196,7 @@ function branches_sort_quote(N::Int, M::Int, D)
         n ∈ static_dims && continue
         tc = copy(t)
         push!(tc.args, :(StaticInt{$n}()))
-        qnew = Expr(ifsym, :(dimm == $n), :(return __vsort!(A, $tc)))
+        qnew = Expr(ifsym, :(dimm == $n), :(return __vsort!(A, $tc, multithreaded)))
         for r ∈ m+1:M
           push!(tc.args, :(dims[$r]))
         end
@@ -218,7 +209,7 @@ function branches_sort_quote(N::Int, M::Int, D)
       for r ∈ m+1:M
         push!(tc.args, :(dims[$r]))
       end
-      push!(qold.args, Expr(:block, :(return __vsort!(A, $tc))))
+      push!(qold.args, Expr(:block, :(return __vsort!(A, $tc, multithreaded))))
       return q
     end
   end
@@ -226,9 +217,9 @@ function branches_sort_quote(N::Int, M::Int, D)
 end
 
 # Efficient @generated in-place sort
-@generated function __vsort!(A::AbstractArray{T,N}, dims::D) where {T,N,M,D<:Tuple{Vararg{IntOrStaticInt,M}}}
+@generated function __vsort!(A::AbstractArray{T,N}, dims::D, multithreaded) where {T,N,M,D<:Tuple{Vararg{IntOrStaticInt,M}}}
   branches_sort_quote(N, M, D)
 end
-@generated function __vsort!(A::AbstractArray{T,N}, dims::Tuple{}) where {T,N}
+@generated function __vsort!(A::AbstractArray{T,N}, dims::Tuple{}, multithreaded) where {T,N}
   :(return A)
 end

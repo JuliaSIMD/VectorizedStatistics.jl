@@ -2,8 +2,8 @@ module VectorizedStatistics
 
     using LoopVectorization, Static
 
-    _dim(::Type{StaticInt{N}}) where {N} = N::Int
     const IntOrStaticInt = Union{Integer, StaticInt}
+    _dim(::Type{StaticInt{N}}) where {N} = N::Int
 
     # Implemented by reduction, recursively
     include("vreducibles.jl")
