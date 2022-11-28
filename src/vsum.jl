@@ -36,7 +36,7 @@ _vsum(A, dims::Int, multithreaded::StaticBool) = _vsum(A, (dims,), multithreaded
 # Reduce some dims
 function _vsum(A::AbstractArray{T,N}, dims::Tuple, multithreaded::StaticBool) where {T,N}
     sᵢ = size(A)
-    sₒ = ntuple(Val(N)) do d
+    sₒ = ntuple(Val{N}()) do d
         ifelse(d ∈ dims, 1, sᵢ[d])
     end
     Tₒ = Base.promote_op(+, T, Int)
