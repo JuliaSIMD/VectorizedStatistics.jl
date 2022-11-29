@@ -22,4 +22,8 @@ module VectorizedStatistics
     include("vmedian.jl")
     include("vquantile.jl")
 
+    # Fully precompile some commonly-used methods
+    using SnoopPrecompile
+    include("precompile.jl")
+
 end
