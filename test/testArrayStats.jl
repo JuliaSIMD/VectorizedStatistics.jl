@@ -17,6 +17,7 @@
             Σ = sum(A, dims=i)
             @test vsum(A, dims=i, multithreaded=false) ≈ Σ
             @test vsum(A, dims=i, multithreaded=true) ≈ Σ
+            @test vec(vsum(A, dim=i)) ≈ vec(Σ)
         end
 
         # Test equivalence when reducing over two dimensions
@@ -27,6 +28,7 @@
                     Σ = sum(A, dims=(j,i))
                     @test vsum(A, dims=(j,i), multithreaded=false) ≈ Σ
                     @test vsum(A, dims=(j,i), multithreaded=true) ≈ Σ
+                    @test vec(vsum(A, dim=(j,i))) ≈ vec(Σ)
                 end
             end
         end
@@ -127,6 +129,7 @@
             σ² = var(A, dims=i, corrected=false)
             @test vvar(A, dims=i, corrected=false, multithreaded=false) ≈ σ²
             @test vvar(A, dims=i, corrected=false, multithreaded=true) ≈ σ²
+            @test vec(vvar(A, dim=i, corrected=false)) ≈ vec(σ²)
         end
 
         # Test equivalence when reducing over two dimensions
@@ -137,6 +140,7 @@
                     σ² = var(A, dims=(j,i), corrected=false)
                     @test vvar(A, dims=(j,i), corrected=false, multithreaded=false) ≈ σ²
                     @test vvar(A, dims=(j,i), corrected=false, multithreaded=true) ≈ σ²
+                    @test vec(vvar(A, dim=(j,i), corrected=false)) ≈ vec(σ²)
                 end
             end
         end
@@ -170,7 +174,10 @@
         # Test equivalence when reducing over a single dimension
         for i = 1:nd
             @info "Testing vstd: reduction over dimension $i"
-            @test vstd(A, dims=i, multithreaded=true) ≈ vstd(A, dims=i, multithreaded=false) ≈ std(A, dims=i)
+            σ = std(A, dims=i)
+            @test vstd(A, dims=i, multithreaded=true) ≈ σ
+            @test vstd(A, dims=i, multithreaded=false) ≈ σ
+            @test vec(vstd(A, dim=i)) ≈ vec(σ)
         end
 
         # Test equivalence when reducing over two dimensions
@@ -178,7 +185,9 @@
             for i = 2:nd
                 for j = 1:i-1
                     @info "Testing vstd: reduction over dimensions $((j,i))"
-                    @test vstd(A, dims=(j,i)) ≈ std(A, dims=(j,i))
+                    σ = std(A, dims=(j,i))
+                    @test vstd(A, dims=(j,i)) ≈ σ
+                    @test vec(vstd(A, dim=(j,i))) ≈ vec(σ)
                 end
             end
         end

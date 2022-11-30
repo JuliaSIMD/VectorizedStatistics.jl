@@ -28,9 +28,12 @@ julia> vstd(A, dims=2)
  0.7071067811865476
 ```
 """
-vstd(A; dim=:, dims=:, mean=nothing, corrected=true, multithreaded=False()) = sqrt!(_vvar(mean, corrected, A, dim, dims, multithreaded), multithreaded)
+vstd(A; dim=:, dims=:, mean=nothing, corrected=true, multithreaded=False()) = _vstd(mean, corrected, A, dim, dims, multithreaded)
 export vstd
-_vstd(mean, corrected, A, dims, multithreaded::StaticBool) = sqrt!(_vvar(mean, corrected, A, dims, multithreaded), multithreaded)
+_vstd(mean, corrected, A, ::Colon, ::Colon, multithreaded) = _vstd(mean, corrected, A, :, multithreaded)
+_vstd(mean, corrected, A, ::Colon, region, multithreaded) = _vstd(mean, corrected, A, region, multithreaded)
+_vstd(mean, corrected, A, region, ::Colon, multithreaded) = reducedims(_vstd(mean, corrected, A, region, multithreaded), region)
+_vstd(mean, corrected, A, dims, multithreaded) = sqrt!(_vvar(mean, corrected, A, dims, multithreaded), multithreaded)
 
 sqrt!(x, multithreaded::Symbol) = sqrt!(x, (multithreaded===:auto && length(A) > 4095) ? True() : False())
 sqrt!(x, multithreaded::Bool) = sqrt!(x, static(multithreaded))
