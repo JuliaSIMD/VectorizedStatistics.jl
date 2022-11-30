@@ -11,7 +11,7 @@ Fast, [LoopVectorization.jl](https://github.com/JuliaSIMD/LoopVectorization.jl)-
 * `vmaximum`
 * `vextrema`
 
-#### Implemented directly by compile-time loop generation or manually-coded loops (auto-multithreaded by default)
+#### Implemented directly by compile-time loop generation or manually-coded loops (optionally multithreaded)
 * `vmean`
 * `vsum`
 * `vvar`
