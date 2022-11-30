@@ -67,10 +67,29 @@
     A = rand(100)
     B = VectorizedStatistics.vsort(A, multithreaded=true)
     @test issorted(B)
+
+    # Vsort!, Float64
+    A = rand(100)
     Ix = sortperm(A)
     I = collect(1:length(A))
     vsort!(I, A)
+    @test issorted(A)
     @test Ix == I
+    A[rand(1:100, 10)] .= NaN
+    vsort!(I, A)
+    @test issorted(A)
+    A = rand(10000)
+    Ix = sortperm(A)
+    I = collect(1:length(A))
+    vsort!(I, A, multithreaded=false)
+    @test issorted(A)
+    @test Ix == I
+    A .= rand.()
+    vsort!(I, A, multithreaded=true)
+    @test issorted(A)
+    A .= rand.()
+    vsort!(I, A, multithreaded=:auto)
+    @test issorted(A)
 
     # Vsort, Int64
     A = rand(Int, 100)
@@ -79,6 +98,7 @@
     A = rand(Int, 100)
     B = VectorizedStatistics.vsort(A, multithreaded=true)
     @test issorted(B)
+    # Vsort!, Int64
     Ix = sortperm(A)
     I = collect(1:length(A))
     vsort!(I, A)

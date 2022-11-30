@@ -10,6 +10,7 @@
         Σ = sum(A)
         @test vsum(A, multithreaded=false) ≈ Σ
         @test vsum(A, multithreaded=true) ≈ Σ
+        @test vsum(A, multithreaded=:auto) ≈ Σ
 
         # Test equivalence when reducing over a single dimension
         for i = 1:nd
@@ -59,6 +60,8 @@
         μ = mean(A)
         @test vmean(A, multithreaded=false) ≈ μ
         @test vmean(A, multithreaded=true) ≈ μ
+        @test vmean(A, multithreaded=:auto) ≈ μ
+
 
         # Test equivalence when reducing over a single dimension
         for i = 1:nd
@@ -122,6 +125,7 @@
         σ² = var(A, corrected=false)
         @test vvar(A, corrected=false, multithreaded=false) ≈ σ²
         @test vvar(A, corrected=false, multithreaded=true) ≈ σ²
+        @test vvar(A, corrected=false, multithreaded=:auto) ≈ σ²
 
         # Test equivalence when reducing over a single dimension
         for i = 1:nd
@@ -168,8 +172,14 @@
         A = randn((2 .+ (1:nd))...)
 
         # Test equivlalence when reducing over all dims
-        @test vstd(A, multithreaded=true) ≈ vstd(A, multithreaded=false) ≈ std(A)
-        @test vstd(A, corrected=false, multithreaded=true) ≈ vstd(A, corrected=false, multithreaded=false) ≈ std(A, corrected=false)
+        σ = std(A)
+        @test vstd(A, multithreaded=true) ≈ σ
+        @test vstd(A, multithreaded=false) ≈ σ
+        @test vstd(A, multithreaded=:auto) ≈ σ
+        σ = std(A, corrected=false)
+        @test vstd(A, corrected=false, multithreaded=true) ≈ σ
+        @test vstd(A, corrected=false, multithreaded=false) ≈ σ
+        @test vstd(A, corrected=false, multithreaded=:auto) ≈ σ
 
         # Test equivalence when reducing over a single dimension
         for i = 1:nd

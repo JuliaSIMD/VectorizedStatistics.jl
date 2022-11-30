@@ -35,7 +35,7 @@ _vstd(mean, corrected, A, ::Colon, region, multithreaded) = _vstd(mean, correcte
 _vstd(mean, corrected, A, region, ::Colon, multithreaded) = reducedims(_vstd(mean, corrected, A, region, multithreaded), region)
 _vstd(mean, corrected, A, dims, multithreaded) = sqrt!(_vvar(mean, corrected, A, dims, multithreaded), multithreaded)
 
-sqrt!(x, multithreaded::Symbol) = sqrt!(x, (multithreaded===:auto && length(A) > 4095) ? True() : False())
+sqrt!(x, multithreaded::Symbol) = sqrt!(x, (multithreaded===:auto && length(x) > 4095) ? True() : False())
 sqrt!(x, multithreaded::Bool) = sqrt!(x, static(multithreaded))
 sqrt!(x::Number, multithreaded::StaticBool) = sqrt(x)
 function sqrt!(A::AbstractArray, multithreaded::False)
