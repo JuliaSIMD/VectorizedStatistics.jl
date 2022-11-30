@@ -24,7 +24,10 @@ julia> vsum(A, dims=2)
  7
 ```
 """
-vsum(A; dims=:, multithreaded=False()) = _vsum(A, dims, multithreaded)
+vsum(A; dim=:, dims=:, multithreaded=False()) = _vsum(A, dim, dims, multithreaded)
+_vsum(A, ::Colon, ::Colon, multithreaded) = _vsum(A, :, multithreaded)
+_vsum(A, ::Colon, region, multithreaded) = _vsum(A, region, multithreaded)
+_vsum(A, region, ::Colon, multithreaded) = reducedims(_vsum(A, region, multithreaded), region)
 export vsum
 
 _vsum(A, dims, multithreaded::Symbol) = _vsum(A, dims, (multithreaded===:auto && length(A) > 4095) ? True() : False())

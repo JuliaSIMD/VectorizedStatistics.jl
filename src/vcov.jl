@@ -33,8 +33,8 @@ If `corrected` is `true` as is the default, _Bessel's correction_ will be applie
 such that the sum is scaled by `n-1` rather than `n`, where `n = length(x)`.
 """
 vcov(x::AbstractVector, y::AbstractVector; corrected::Bool=true, multithreaded=False()) = _vcov(x, y, corrected, multithreaded)
-_vcov(x, y, corrected, multithreaded::Symbol) = _vcov(x, y, corrected, (multithreaded==:auto && length(x) > 4095) ? True() : False())
-_vcov(x, y, corrected, multithreaded::Bool) = _vcov(x, y, corrected, static(multithreaded))
+_vcov(x::AbstractVector, y::AbstractVector, corrected, multithreaded::Symbol) = _vcov(x, y, corrected, (multithreaded==:auto && length(x) > 4095) ? True() : False())
+_vcov(x::AbstractVector, y::AbstractVector, corrected, multithreaded::Bool) = _vcov(x, y, corrected, static(multithreaded))
 function _vcov(x::AbstractVector, y::AbstractVector, corrected::Bool, multithreaded::StaticBool)
     # Check lengths
     nᵪ = length(x)
@@ -60,8 +60,8 @@ such that the sum is scaled by `n-1` rather than `n`, where `n = length(x)`.
 vcov(X::AbstractMatrix; dims::Int=1, corrected::Bool=true, multithreaded=False()) = _vcov(X, dims, corrected, multithreaded)
 export vcov
 
-_vcov(X, dims, corrected, multithreaded::Symbol) = _vcov(X, dims, corrected, (multithreaded===:auto && size(X,1) > 4095) ? True() : False())
-_vcov(X, dims, corrected, multithreaded::Bool) = _vcov(X, dims, corrected, static(multithreaded))
+_vcov(X::AbstractMatrix, dims, corrected, multithreaded::Symbol) = _vcov(X, dims, corrected, (multithreaded===:auto && size(X,1) > 4095) ? True() : False())
+_vcov(X::AbstractMatrix, dims, corrected, multithreaded::Bool) = _vcov(X, dims, corrected, static(multithreaded))
 function _vcov(X, dims, corrected, multithreaded::StaticBool)
     Tₒ = Base.promote_op(/, eltype(X), Int)
     n = size(X, dims)
@@ -108,8 +108,8 @@ As `Statistics.cor`, but vectorized and (optionally) multithreaded.
 Equivalent to `cov(x,y) / (std(x) * std(y))`.
 """
 vcor(x::AbstractVector, y::AbstractVector; corrected::Bool=true, multithreaded=False()) = _vcor(x, y, corrected, multithreaded)
-_vcor(x, y, corrected, multithreaded::Symbol) = _vcor(x, y, corrected, (multithreaded===:auto && length(x) > 4095) ? True() : False())
-_vcor(x, y, corrected, multithreaded::Bool) = _vcor(x, y, corrected, static(multithreaded))
+_vcor(x::AbstractVector, y::AbstractVector, corrected, multithreaded::Symbol) = _vcor(x, y, corrected, (multithreaded===:auto && length(x) > 4095) ? True() : False())
+_vcor(x::AbstractVector, y::AbstractVector, corrected, multithreaded::Bool) = _vcor(x, y, corrected, static(multithreaded))
 function _vcor(x::AbstractVector, y::AbstractVector, corrected::Bool, multithreaded::StaticBool)
     # Check lengths
     nᵪ = length(x)
@@ -138,8 +138,8 @@ multithreaded.
 vcor(X::AbstractMatrix; dims::Int=1, corrected::Bool=true, multithreaded=False()) = _vcor(X, dims, corrected, multithreaded)
 export vcor
 
-_vcor(X, dims, corrected, multithreaded::Symbol) = _vcor(X, dims, corrected, (multithreaded===:auto && size(X,1) > 4095) ? True() : False())
-_vcor(X, dims, corrected, multithreaded::Bool) = _vcor(X, dims, corrected, static(multithreaded))
+_vcor(X::AbstractMatrix, dims, corrected, multithreaded::Symbol) = _vcor(X, dims, corrected, (multithreaded===:auto && size(X,1) > 4095) ? True() : False())
+_vcor(X::AbstractMatrix, dims, corrected, multithreaded::Bool) = _vcor(X, dims, corrected, static(multithreaded))
 function _vcor(X, dims, corrected, multithreaded::StaticBool)
     Tₒ = Base.promote_op(/, eltype(X), Int)
     n = size(X, dims)

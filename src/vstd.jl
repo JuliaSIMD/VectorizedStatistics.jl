@@ -28,13 +28,12 @@ julia> vstd(A, dims=2)
  0.7071067811865476
 ```
 """
-vstd(A; dims=:, mean=nothing, corrected=true, multithreaded=False()) = _vstd(mean, corrected, A, dims, multithreaded)
+vstd(A; dim=:, dims=:, mean=nothing, corrected=true, multithreaded=False()) = sqrt!(_vvar(mean, corrected, A, dim, dims, multithreaded), multithreaded)
 export vstd
-
-_vstd(mean, corrected, A, dims, multithreaded::Symbol) = _vstd(mean, corrected, A, dims, (multithreaded===:auto && length(A) > 4095) ? True() : False())
-_vstd(mean, corrected, A, dims, multithreaded::Bool) = _vstd(mean, corrected, A, dims, static(multithreaded))
 _vstd(mean, corrected, A, dims, multithreaded::StaticBool) = sqrt!(_vvar(mean, corrected, A, dims, multithreaded), multithreaded)
 
+sqrt!(x, multithreaded::Symbol) = sqrt!(x, (multithreaded===:auto && length(A) > 4095) ? True() : False())
+sqrt!(x, multithreaded::Bool) = sqrt!(x, static(multithreaded))
 sqrt!(x::Number, multithreaded::StaticBool) = sqrt(x)
 function sqrt!(A::AbstractArray, multithreaded::False)
     @turbo for i ∈ eachindex(A)

@@ -28,7 +28,10 @@ julia> vvar(A, dims=2)
  0.5
 ```
 """
-vvar(A; dims=:, mean=nothing, corrected=true, multithreaded=False()) = _vvar(mean, corrected, A, dims, multithreaded)
+vvar(A; dim=:, dims=:, mean=nothing, corrected=true, multithreaded=False()) = _vvar(mean, corrected, A, dim, dims, multithreaded)
+_vvar(mean, corrected, A, ::Colon, ::Colon, multithreaded) = _vvar(mean, corrected, A, :, multithreaded)
+_vvar(mean, corrected, A, ::Colon, region, multithreaded) = _vvar(mean, corrected, A, region, multithreaded)
+_vvar(mean, corrected, A, region, ::Colon, multithreaded) = reducedims(_vvar(mean, corrected, A, region, multithreaded), region)
 export vvar
 
 _vvar(mean, corrected, A, dims, multithreaded::Symbol) = _vvar(mean, corrected, A, dims, (multithreaded===:auto && length(A) > 4095) ? True() : False())

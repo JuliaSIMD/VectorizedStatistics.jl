@@ -47,7 +47,7 @@ julia> A = [1 2 3; 4 5 6; 7 8 9]
  3  6  9
 ```
 """
-vpercentile!(A, p::Number; dims=:) = _vquantile!(A, p/100, dims)
+vpercentile!(A, p::Number; dim=:, dims=:) = _vquantile!(A, p/100, dim, dims)
 export vpercentile!
 
 
@@ -100,7 +100,10 @@ julia> A = [1 2 3; 4 5 6; 7 8 9]
  3  6  9
 ```
 """
-vquantile!(A, q::Number; dims=:) = _vquantile!(A, q, dims)
+vquantile!(A, q::Number; dim=:, dims=:) = _vquantile!(A, q, dim, dims)
+_vquantile!(A, q, ::Colon, ::Colon) = _vquantile!(A, q, :)
+_vquantile!(A, q, ::Colon, region) = _vquantile!(A, q, region)
+_vquantile!(A, q, region, ::Colon) = reducedims(_vquantile!(A, q, region), region)
 export vquantile!
 
 # Reduce one dim

@@ -24,7 +24,10 @@ julia> vmean(A, dims=2)
  3.5
 ```
 """
-vmean(A; dims=:, multithreaded=False()) = _vmean(A, dims, multithreaded)
+vmean(A; dim=:, dims=:, multithreaded=False()) = _vmean(A, dim, dims, multithreaded)
+_vmean(A, ::Colon, ::Colon, multithreaded) = _vmean(A, :, multithreaded)
+_vmean(A, ::Colon, region, multithreaded) = _vmean(A, region, multithreaded)
+_vmean(A, region, ::Colon, multithreaded) = reducedims(_vmean(A, region, multithreaded), region)
 export vmean
 
 _vmean(A, dims, multithreaded::Symbol) = _vmean(A, dims, (multithreaded===:auto && length(A) > 4095) ? True() : False())

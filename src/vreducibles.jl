@@ -1,5 +1,11 @@
 
 for (op, name) in zip((:min, :max), (:_vminimum, :_vmaximum))
+
+  # Deal with dim vs dims
+  @eval $name(A, ::Colon, ::Colon) = $name(A, :)
+  @eval $name(A, ::Colon, region) = $name(A, region)
+  @eval $name(A, region, ::Colon) = reducedims($name(A, region), region)
+
   # Reduce over all dimensions
   @eval $name(A, ::Colon) = vreduce($op, A)
 
@@ -48,7 +54,7 @@ julia> vminimum(A, dims=2)
  3
 ```
 """
-vminimum(A; dims=:) = _vminimum(A, dims)
+vminimum(A; dim=:, dims=:) = _vminimum(A, dim, dims)
 export vminimum
 
 
@@ -78,7 +84,7 @@ julia>  vmaximum(A, dims=2)
  4
 ```
 """
-vmaximum(A; dims=:) = _vmaximum(A, dims)
+vmaximum(A; dim=:, dims=:) = _vmaximum(A, dim, dims)
 export vmaximum
 
 

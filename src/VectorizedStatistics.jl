@@ -5,6 +5,11 @@ module VectorizedStatistics
     const IntOrStaticInt = Union{Integer, StaticInt}
     _dim(::Type{StaticInt{N}}) where {N} = N::Int
 
+    # Dropdims if there are dims to be dropped
+    reducedims(A, dims) = A
+    reducedims(A::AbstractVector, dims) = A
+    reducedims(A::AbstractArray, dims) = dropdims(A; dims)
+
     # Implemented by reduction, recursively
     include("vreducibles.jl")
 

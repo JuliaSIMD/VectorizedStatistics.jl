@@ -45,7 +45,10 @@ julia> A = [1 2 3; 4 5 6; 7 8 9]
  3  6  9
 ```
 """
-vmedian!(A; dims=:) = _vmedian!(A, dims)
+vmedian!(A; dim=:, dims=:) = _vmedian!(A, dim, dims)
+_vmedian!(A, ::Colon, ::Colon) = _vmedian!(A, :)
+_vmedian!(A, ::Colon, region) = _vmedian!(A, region)
+_vmedian!(A, region, ::Colon) = reducedims(_vmedian!(A, region), region)
 export vmedian!
 
 # Reduce one dim
