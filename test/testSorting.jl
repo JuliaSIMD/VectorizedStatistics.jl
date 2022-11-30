@@ -78,17 +78,38 @@
     A[rand(1:100, 10)] .= NaN
     vsort!(I, A)
     @test issorted(A)
-    A = rand(10000)
+    A .= rand.()
+    vsort!(A)
+    @test issorted(A)
+    A .= rand.()
+    A[rand(1:100, 10)] .= NaN
+    vsort!(A)
+    @test issorted(A)
+
+    A = rand(10_000)
     Ix = sortperm(A)
     I = collect(1:length(A))
     vsort!(I, A, multithreaded=false)
     @test issorted(A)
     @test Ix == I
     A .= rand.()
+    vsort!(I)
+    Ix = sortperm(A)
     vsort!(I, A, multithreaded=true)
     @test issorted(A)
+    @test Ix == I
     A .= rand.()
+    vsort!(I)
+    Ix = sortperm(A)
     vsort!(I, A, multithreaded=:auto)
+    @test issorted(A)
+    @test Ix == I
+    A .= rand.()
+    vsort!(A)
+    @test issorted(A)
+    A .= rand.()
+    A[rand(1:10_000, 1_000)] .= NaN
+    vsort!(A)
     @test issorted(A)
 
     # Vsort, Int64
