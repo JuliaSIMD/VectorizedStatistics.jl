@@ -69,6 +69,7 @@
             μ = mean(A, dims=i)
             @test vmean(A, dims=i, multithreaded=false) ≈ μ
             @test vmean(A, dims=i, multithreaded=true) ≈ μ
+            @test vec(vmean(A, dim=i)) ≈ vec(μ)
         end
 
         # Test equivalence when reducing over two dimensions
@@ -79,6 +80,7 @@
                     μ = mean(A, dims=(j,i))
                     @test vmean(A, dims=(j,i), multithreaded=false) ≈ μ
                     @test vmean(A, dims=(j,i), multithreaded=true) ≈ μ
+                    @test vec(vmean(A, dim=(j,i))) ≈ vec(μ)
                 end
             end
         end
