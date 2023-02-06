@@ -13,16 +13,16 @@
                 vminimum(A)
                 vmaximum(A)
 
-                for d in 1:nd
-                    vsum(A, dims=d)
-                    vmean(A, dims=d)
-                    vstd(A, dims=d)
-                    vvar(A, dims=d)
-                    vminimum(A, dims=d)
-                    vmaximum(A, dims=d)
-                end
-
                 if nd > 1
+                    for d in 1:nd
+                        vsum(A, dims=d)
+                        vmean(A, dims=d)
+                        vstd(A, dims=d)
+                        vvar(A, dims=d)
+                        vminimum(A, dims=d)
+                        vmaximum(A, dims=d)
+                    end
+
                     for i = 2:nd
                         for j = 1:i-1
                             vsum(A, dims=(j,i))
@@ -38,7 +38,7 @@
             end
         end
 
-        for T in (Float64, Int)
+        for T in (Int,)
             for nd in 1:maxdims
                 A = ones(T, ntuple(i->10, nd))
                 vsum(A)
