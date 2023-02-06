@@ -1,9 +1,10 @@
 @precompile_setup begin
+    maxdims = 3
 
     @precompile_all_calls begin
 
-        for T in (Float64,Float32,Int)
-            for nd in 1:4
+        for T in (Float64,)
+            for nd in 1:maxdims
                 A = ones(T, ntuple(i->10, nd))
                 vsum(A)
                 vmean(A)
@@ -20,7 +21,7 @@
                     vminimum(A, dims=d)
                     vmaximum(A, dims=d)
                 end
-                
+
                 if nd > 1
                     for i = 2:nd
                         for j = 1:i-1
@@ -34,6 +35,18 @@
                     end
                 end
 
+            end
+        end
+
+        for T in (Float64, Int)
+            for nd in 1:maxdims
+                A = ones(T, ntuple(i->10, nd))
+                vsum(A)
+                vmean(A)
+                vstd(A)
+                vvar(A)
+                vminimum(A)
+                vmaximum(A)
             end
         end
     end
