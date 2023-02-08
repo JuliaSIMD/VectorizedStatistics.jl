@@ -25,12 +25,12 @@
 
                     for i = 2:nd
                         for j = 1:i-1
-                            vsum(A, dims=(j,i))
+                            # vsum(A, dims=(j,i))
                             vmean(A, dims=(j,i))
-                            vstd(A, dims=(j,i))
-                            vvar(A, dims=(j,i))
-                            vminimum(A, dims=(j,i))
-                            vmaximum(A, dims=(j,i))
+                            # vstd(A, dims=(j,i))
+                            # vvar(A, dims=(j,i))
+                            # vminimum(A, dims=(j,i))
+                            # vmaximum(A, dims=(j,i))
                         end
                     end
                 end
