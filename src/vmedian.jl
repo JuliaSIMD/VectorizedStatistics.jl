@@ -51,6 +51,9 @@ _vmedian!(A, ::Colon, region) = _vmedian!(A, region)
 _vmedian!(A, region, ::Colon) = reducedims(_vmedian!(A, region), region)
 export vmedian!
 
+vmedian(A; kwargs...) = vmedian!(copy(A); kwargs...)
+export vmedian
+
 # Reduce one dim
 _vmedian!(A, dims::Int) = _vmedian!(A, (dims,))
 
