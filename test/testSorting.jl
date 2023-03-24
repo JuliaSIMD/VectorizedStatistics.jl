@@ -143,22 +143,22 @@
     @test vmedian!(1:10) == 5.5
 
     A = rand(100)
-    @test vmedian!(copy(A)) == median(A)
+    @test vmedian!(copy(A)) == vmedian(A) == median(A)
     A = rand(10_000)
     @test vmedian!(copy(A)) == median(A)
 
     A = rand(55,82)
-    @test vmedian!(copy(A)) == median(A)
+    @test vmedian!(copy(A)) == vmedian(A) == median(A)
     @test vmedian!(copy(A), dims=1) == median(A, dims=1)
     @test vmedian!(copy(A), dims=2) == median(A, dims=2)
 
     A = rand(10,11,12)
-    @test vmedian!(copy(A)) == median(A)
-    @test vmedian!(copy(A), dims=1) == median(A, dims=1)
-    @test vmedian!(copy(A), dims=2) == median(A, dims=2)
-    @test vmedian!(copy(A), dims=3) == median(A, dims=3)
-    @test vmedian!(copy(A), dims=(1,2)) == median(A, dims=(1,2))
-    @test vmedian!(copy(A), dims=(2,3)) == median(A, dims=(2,3))
+    @test vmedian!(copy(A)) == vmedian(A) == median(A)
+    @test vmedian!(copy(A), dims=1) == vmedian(A, dims=1) == median(A, dims=1)
+    @test vmedian!(copy(A), dims=2) == vmedian(A, dims=2) == median(A, dims=2)
+    @test vmedian!(copy(A), dims=3) == vmedian(A, dims=3) == median(A, dims=3)
+    @test vmedian!(copy(A), dims=(1,2)) == vmedian(A, dims=(1,2)) == median(A, dims=(1,2))
+    @test vmedian!(copy(A), dims=(2,3)) == vmedian(A, dims=(2,3)) == median(A, dims=(2,3))
 
 ## --- Test vpercentile! / vquantile!
 
@@ -169,17 +169,17 @@
     @test vpercentile!(collect(1:10), 50) == 5.5
 
     A = rand(100)
-    @test vpercentile!(copy(A), 50) == median(A)
+    @test vpercentile!(copy(A), 50) == vpercentile(A, 50) ==  median(A)
     A = rand(10_000)
     @test vpercentile!(copy(A), 50) == median(A)
 
     A = rand(55,82)
-    @test vpercentile!(copy(A), 50) == median(A)
+    @test vpercentile!(copy(A), 50) == vpercentile(A, 50) == median(A)
     @test vpercentile!(copy(A), 50, dims=1) == median(A, dims=1)
     @test vpercentile!(copy(A), 50, dims=2) == median(A, dims=2)
 
     A = rand(10,11,12)
-    @test vpercentile!(copy(A), 50) == median(A)
+    @test vpercentile!(copy(A), 50) == vpercentile(A, 50) == median(A)
     @test vpercentile!(copy(A), 50, dims=1) == median(A, dims=1)
     @test vpercentile!(copy(A), 50, dims=2) == median(A, dims=2)
     @test vpercentile!(copy(A), 50, dims=3) == median(A, dims=3)
@@ -187,7 +187,7 @@
     @test vpercentile!(copy(A), 50, dims=(2,3)) == median(A, dims=(2,3))
 
     A = rand(100)
-    @test median(A) == vpercentile!(copy(A), 50) == vquantile!(copy(A), 0.5)
+    @test median(A) == vpercentile!(copy(A), 50) == vquantile!(copy(A), 0.5) == vquantile(A, 0.5)
     @test vpercentile!(copy(A), 50) == vquantile!(copy(A), 0.5)
 
 ## ---
