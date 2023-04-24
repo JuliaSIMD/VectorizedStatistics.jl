@@ -1,7 +1,7 @@
-@precompile_setup begin
+@setup_workload begin
     maxdims = 3
 
-    @precompile_all_calls begin
+    @compile_workload begin
 
         for T in (Float64,)
             for nd in 1:maxdims
