@@ -28,7 +28,7 @@ module VectorizedStatistics
     include("vquantile.jl")
 
     # Fully precompile some commonly-used methods
-    using SnoopPrecompile
+    using PrecompileTools
     include("precompile.jl")
 
 end
