@@ -39,13 +39,13 @@ sqrt!(x, multithreaded::Symbol) = sqrt!(x, (multithreaded===:auto && length(x) >
 sqrt!(x, multithreaded::Bool) = sqrt!(x, static(multithreaded))
 sqrt!(x::Number, multithreaded::StaticBool) = sqrt(x)
 function sqrt!(A::AbstractArray, multithreaded::False)
-    @turbo for i ∈ eachindex(A)
+    @turbo check_empty=true for i ∈ eachindex(A)
         A[i] = sqrt(A[i])
     end
     return A
 end
 function sqrt!(A::AbstractArray, multithreaded::True)
-    @tturbo for i ∈ eachindex(A)
+    @tturbo check_empty=true for i ∈ eachindex(A)
         A[i] = sqrt(A[i])
     end
     return A

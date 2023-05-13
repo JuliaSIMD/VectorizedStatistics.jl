@@ -55,7 +55,7 @@ function _vmean(A, ::Colon, multithreaded::False)
     # Promote type of accumulator to avoid overflow
     Tₒ = Base.promote_op(/, eltype(A), Int)
     Σ = zero(Tₒ)
-    @turbo for i ∈ eachindex(A)
+    @turbo check_empty=true for i ∈ eachindex(A)
         Σ += A[i]
     end
     return Σ / length(A)
@@ -155,7 +155,7 @@ function _vmean(A, ::Colon, multithreaded::True)
     # Promote type of accumulator to avoid overflow
     Tₒ = Base.promote_op(/, eltype(A), Int)
     Σ = zero(Tₒ)
-    @tturbo for i ∈ eachindex(A)
+    @tturbo check_empty=true for i ∈ eachindex(A)
         Σ += A[i]
     end
     return Σ / length(A)

@@ -2,7 +2,7 @@
 function sortnans!(I::AbstractArray, A::AbstractArray, iₗ::Int=firstindex(A), iᵤ::Int=lastindex(A))
     # Count up NaNs
     Nₙₐₙ = 0
-    @turbo for i = iₗ:iᵤ
+    @turbo check_empty=true for i = iₗ:iᵤ
         Nₙₐₙ += A[i] != A[i]
     end
     # If none, return early
