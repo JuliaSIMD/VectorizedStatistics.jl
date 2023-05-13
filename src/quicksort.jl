@@ -45,7 +45,7 @@ end
 function sortnans!(A::AbstractArray, iₗ::Int=firstindex(A), iᵤ::Int=lastindex(A))
     # Count up NaNs
     Nₙₐₙ = 0
-    @turbo for i = iₗ:iᵤ
+    @turbo check_empty=true for i = iₗ:iᵤ
         Nₙₐₙ += A[i] != A[i]
     end
     # If none, return early
@@ -80,7 +80,7 @@ function quickselect!(A::AbstractArray, iₗ::Int=firstindex(A), iᵤ::Int=lasti
 
     # Count up elements that must be moved to upper partition
     Nᵤ = 0
-    @turbo for i = (iₗ+1):iᵤ
+    @turbo check_empty=true for i = (iₗ+1):iᵤ
         Nᵤ += A[i] >= pivot
     end
     Nₗ = N - Nᵤ
@@ -103,9 +103,15 @@ function quickselect!(A::AbstractArray, iₗ::Int=firstindex(A), iᵤ::Int=lasti
     iₚ = iₗ + Nₗ - 1
     A[iₗ], A[iₚ] = A[iₚ], A[iₗ]
     # Recurse: select from partition containing k
-    (iₗ <= k < iₚ) && quickselect!(A, iₗ, iₚ, k)
-    (iₚ < k <= iᵤ) && quickselect!(A, iₚ+1, iᵤ, k)
-    return A[k]
+    if iₚ==k
+        return A[k]
+    elseif k < iₚ
+        Nₗ == 2 && return A[iₗ]
+        quickselect!(A, iₗ, iₚ, k)
+    else
+        Nᵤ == 2 && return A[iᵤ]
+        quickselect!(A, iₚ+1, iᵤ, k)
+    end
 end
 
 

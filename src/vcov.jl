@@ -1,7 +1,7 @@
 function _vcov(x::AbstractVector, y::AbstractVector, corrected::Bool, μᵪ::Number, μᵧ::Number, multithreaded::False)
     # Calculate covariance
     σᵪᵧ = zero(promote_type(typeof(μᵪ), typeof(μᵧ), Int))
-    @turbo for i ∈ indices((x,y))
+    @turbo check_empty=true for i ∈ indices((x,y))
             δᵪ = x[i] - μᵪ
             δᵧ = y[i] - μᵧ
             σᵪᵧ += δᵪ * δᵧ
@@ -13,7 +13,7 @@ end
 function _vcov(x::AbstractVector, y::AbstractVector, corrected::Bool, μᵪ::Number, μᵧ::Number, multithreaded::True)
     # Calculate covariance
     σᵪᵧ = zero(promote_type(typeof(μᵪ), typeof(μᵧ), Int))
-    @tturbo for i ∈ indices((x,y))
+    @tturbo check_empty=true for i ∈ indices((x,y))
             δᵪ = x[i] - μᵪ
             δᵧ = y[i] - μᵧ
             σᵪᵧ += δᵪ * δᵧ

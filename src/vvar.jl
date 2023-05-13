@@ -48,7 +48,7 @@ function _vvar(μ::Number, corrected::Bool, A, ::Colon, multithreaded::False)
     # Reduce all the dims!
     n = length(A)
     σ² = zero(typeof(μ))
-    @turbo for i ∈ eachindex(A)
+    @turbo check_empty=true for i ∈ eachindex(A)
         δ = A[i] - μ
         σ² += δ * δ
     end
@@ -58,7 +58,7 @@ function _vvar(μ::Number, corrected::Bool, A, ::Colon, multithreaded::True)
     # Reduce all the dims!
     n = length(A)
     σ² = zero(typeof(μ))
-    @tturbo for i ∈ eachindex(A)
+    @tturbo check_empty=true for i ∈ eachindex(A)
         δ = A[i] - μ
         σ² += δ * δ
     end
@@ -72,12 +72,12 @@ function _vvar(::Nothing, corrected::Bool, A, ::Colon, multithreaded::False)
     n = length(A)
     Tₒ = Base.promote_op(/, eltype(A), Int)
     Σ = zero(Tₒ)
-    @turbo for i ∈ eachindex(A)
+    @turbo check_empty=true for i ∈ eachindex(A)
             Σ += A[i]
     end
     μ = Σ / n
     σ² = zero(typeof(μ))
-    @turbo for i ∈ eachindex(A)
+    @turbo check_empty=true for i ∈ eachindex(A)
             δ = A[i] - μ
             σ² += δ * δ
     end
@@ -88,12 +88,12 @@ function _vvar(::Nothing, corrected::Bool, A, ::Colon, multithreaded::True)
     n = length(A)
     Tₒ = Base.promote_op(/, eltype(A), Int)
     Σ = zero(Tₒ)
-    @tturbo for i ∈ eachindex(A)
+    @tturbo check_empty=true for i ∈ eachindex(A)
             Σ += A[i]
     end
     μ = Σ / n
     σ² = zero(typeof(μ))
-    @tturbo for i ∈ eachindex(A)
+    @tturbo check_empty=true for i ∈ eachindex(A)
             δ = A[i] - μ
             σ² += δ * δ
     end
