@@ -140,47 +140,44 @@ export vcor
 
 _vcor(X::AbstractMatrix, dims, corrected, multithreaded::Symbol) = _vcor(X, dims, corrected, (multithreaded===:auto && size(X,1) > 4095) ? True() : False())
 _vcor(X::AbstractMatrix, dims, corrected, multithreaded::Bool) = _vcor(X, dims, corrected, static(multithreaded))
-function _vcor(X, dims, corrected, multithreaded::StaticBool)
+@inline function __vcor(X, dims, corrected, multithreaded::StaticBool, axm)
     Tₒ = Base.promote_op(/, eltype(X), Int)
-    n = size(X, dims)
-    m = size(X, mod(dims,2)+1)
-    Ρ = similar(X, Tₒ, (m, m))
+    Ρ = similar(X, Tₒ, (axm, axm))
     # Diagonal must be unity
-    @inbounds for i = 1:m
+    @inbounds for i = axm
         Ρ[i,i] = one(Tₒ)
     end
     # Only two dimensions are possible, so handle each manually
     if dims == 1
         # Precalculate means and standard deviations
-        μ = ntuple(m) do d
-            _vmean(view(X,:,d), :, multithreaded)
-        end
-        σ = ntuple(m) do d
-            _vstd(μ[d], corrected, view(X,:,d), :, multithreaded)
-        end
+        # using a map may preserve static sizes
+        μcol = map(d -> _vmean(view(X,:,d), :, multithreaded), axm)
+        σcol = map(d -> _vstd(μcol[d], corrected, view(X,:,d), :, multithreaded), axm)
         # Fill off-diagonals symmetrically
-        @inbounds for i = 1:m
-            for j = 1:i
-                σᵢⱼ = _vcov(view(X,:,i), view(X,:,j), corrected, μ[i], μ[j], multithreaded)
-                Ρ[i,j] = Ρ[j,i] = σᵢⱼ / (σ[i] * σ[j])
+        @inbounds for i = axm
+            for j = 1:i-1
+                σᵢⱼ = _vcov(view(X,:,i), view(X,:,j), corrected, μcol[i], μcol[j], multithreaded)
+                Ρ[i,j] = Ρ[j,i] = σᵢⱼ / (σcol[i] * σcol[j])
             end
         end
     elseif dims == 2
         # Precalculate means and standard deviations
-        μ = ntuple(m) do d
-            _vmean(view(X,d,:), :, multithreaded)
-        end
-        σ = ntuple(m) do d
-            _vstd(μ[d], corrected, view(X,d,:), :, multithreaded)
-        end
-        @inbounds for i = 1:m
+        μrow = map(d -> _vmean(view(X,d,:), :, multithreaded), axm)
+        σrow = map(d -> _vstd(μrow[d], corrected, view(X,d,:), :, multithreaded), axm)
+        @inbounds for i = axm
             for j = 1:i-1
-                σᵢⱼ = _vcov(view(X,i,:), view(X,j,:), corrected, μ[i], μ[j], multithreaded)
-                Ρ[i,j] = Ρ[j,i] = σᵢⱼ / (σ[i] * σ[j])
+                σᵢⱼ = _vcov(view(X,i,:), view(X,j,:), corrected, μrow[i], μrow[j], multithreaded)
+                Ρ[i,j] = Ρ[j,i] = σᵢⱼ / (σrow[i] * σrow[j])
             end
         end
     else
         throw("Dimension not in range")
     end
     return Ρ
+end
+Base.@constprop :aggressive function _vcor(X, dims, corrected, multithreaded::StaticBool)
+    Base.require_one_based_indexing(X)
+    axm = axes(X)[(2,1)[dims]]
+    # function barrier, in case axm is not type-inferred
+    __vcor(X, dims, corrected, multithreaded::StaticBool, axm)
 end
