@@ -1,5 +1,5 @@
 @setup_workload begin
-    maxdims = 3
+    maxdims = 2
 
     @compile_workload begin
 
@@ -23,16 +23,16 @@
                         vmaximum(A, dims=d)
                     end
 
-                    for i = 2:nd
-                        for j = 1:i-1
-                            # vsum(A, dims=(j,i))
-                            vmean(A, dims=(j,i))
-                            # vstd(A, dims=(j,i))
-                            # vvar(A, dims=(j,i))
-                            # vminimum(A, dims=(j,i))
-                            # vmaximum(A, dims=(j,i))
-                        end
-                    end
+                    # for i = 2:nd
+                    #     for j = 1:i-1
+                    #         vsum(A, dims=(j,i))
+                    #         vmean(A, dims=(j,i))
+                    #         vstd(A, dims=(j,i))
+                    #         vvar(A, dims=(j,i))
+                    #         vminimum(A, dims=(j,i))
+                    #         vmaximum(A, dims=(j,i))
+                    #     end
+                    # end
                 end
 
             end
