@@ -73,6 +73,11 @@ sortnans!(A::AbstractArray{<:Integer}, iₗ::Int=firstindex(A), iᵤ::Int=lastin
 
 # Partially sort `A` around the `k`th sorted element and return that element
 function quickselect!(A::AbstractArray, iₗ::Int=firstindex(A), iᵤ::Int=lastindex(A), k=(iₗ+iᵤ)÷2)
+    # Fall back to Base implementation for very large arrays
+    if iᵤ-iₗ > 20000
+        return Base.Sort.partialsort!(view(A, iₗ:iᵤ), k-(iₗ-1))
+    end
+
     # Pick a pivot for partitioning
     N = iᵤ - iₗ + 1
     A[iₗ], A[k] = A[k], A[iₗ]
