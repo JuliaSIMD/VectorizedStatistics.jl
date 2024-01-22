@@ -1,6 +1,7 @@
 module VectorizedStatistics
 
     using LoopVectorization, Static
+    import LoopVectorization.vsum # Will add more specific method for ::StridedArray
 
     const IntOrStaticInt = Union{Integer, StaticInt}
     _dim(::Type{StaticInt{N}}) where {N} = N::Int
