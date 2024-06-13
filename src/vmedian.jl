@@ -81,13 +81,13 @@ function _vmedian!(A, ::Colon)
     N = iᵤ - iₗ + 1
     i½ = (iₗ + iᵤ) ÷ 2
     if iseven(N)
-        if N < 384
+        Aᵢ₋, Aᵢ₊ =  if N < 384
             quicksort!(A, iₗ, iᵤ)
+            A[i½], A[i½+1]
         else
-            quickselect!(A, iₗ, iᵤ, i½)
-            quickselect!(A, i½+1, iᵤ, i½+1)
+            quickselect!(A, iₗ, iᵤ, i½), quickselect!(A, iₗ, iᵤ, i½+1)
         end
-        return (A[i½] + A[i½+1]) / 2
+        return (Aᵢ₋ + Aᵢ₊) / 2
     else
         if N < 192
             quicksort!(A, iₗ, iᵤ)

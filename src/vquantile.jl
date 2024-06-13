@@ -139,14 +139,14 @@ function _vquantile!(A, q::Real, ::Colon)
     iₚ = q*N₋ + iₗ
     iₚ₋ = floor(Int, iₚ)
     iₚ₊ = ceil(Int, iₚ)
-    if N₋ < 384
+    Aᵢ₋, Aᵢ₊ = if N₋ < 384
         quicksort!(A, iₗ, iᵤ)
+        A[iₚ₋], A[iₚ₊]
     else
-        quickselect!(A, iₗ, iᵤ, iₚ₋)
-        quickselect!(A, iₚ₊, iᵤ, iₚ₊)
+        quickselect!(A, iₗ, iᵤ, iₚ₋), quickselect!(A, iₗ, iᵤ, iₚ₊)
     end
     f = iₚ - iₚ₋
-    return f*A[iₚ₊] + (1-f)*A[iₚ₋]
+    return f*Aᵢ₊ + (1-f)*Aᵢ₋
 end
 
 # Generate customized set of loops for a given ndims and a vector
