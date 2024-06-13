@@ -24,7 +24,7 @@ julia> vsum(A, dims=2)
  7
 ```
 """
-vsum(A; dim=:, dims=:, multithreaded=False()) = _vsum(A, dim, dims, multithreaded)
+vsum(A::StridedArray; dim=:, dims=:, multithreaded=False()) = _vsum(A, dim, dims, multithreaded)
 _vsum(A, ::Colon, ::Colon, multithreaded) = _vsum(A, :, multithreaded)
 _vsum(A, ::Colon, region, multithreaded) = _vsum(A, region, multithreaded)
 _vsum(A, region, ::Colon, multithreaded) = reducedims(_vsum(A, region, multithreaded), region)
